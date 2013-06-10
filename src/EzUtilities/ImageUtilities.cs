@@ -14,16 +14,7 @@ namespace EzUtilities
         public class InvalidImageException : Exception
         {
             private readonly string _path;
-            private readonly bool _isImage;
 
-            /// <summary>
-            /// Gets whether the file is an image; false means that the image 
-            /// is corrupted or is too large.
-            /// </summary>
-            public bool IsImage
-            {
-                get { return _isImage; }
-            }
             /// <summary>
             /// Gets the path to the file.
             /// </summary>
@@ -32,12 +23,89 @@ namespace EzUtilities
                 get { return _path; }
             }
 
-            public InvalidImageException(string path, bool isImage)
+            public InvalidImageException()
+                : this(null)
+            {
+
+            }
+
+            public InvalidImageException(string path)
                 : base("The file is not an image, is corrupted, or is too large")
             {
                 _path = path;
-                _isImage = isImage;
             }
+        }
+
+        /// <summary>
+        /// Creates an image from a file without locking the file.
+        /// </summary>
+        /// <param name="path">The path to the image file.</param>
+        /// <returns></returns>
+        public static Image FromFileNoLock(string path)
+        {
+            MemoryStream ms;
+            return FromFileNoLock(path, out ms);
+        }
+
+        /// <summary>
+        /// Creates an image from a file without locking the file.
+        /// </summary>
+        /// <param name="path">The path to the image file.</param>
+        /// <param name="stream">The MemoryStream that contains data for the image.</param>
+        /// <returns></returns>
+        public static Image FromFileNoLock(string path, out MemoryStream stream)
+        {
+            stream = new MemoryStream();
+            using (Image img = Image.FromFile(path))
+            {
+                img.Save(stream, img.RawFormat);
+            }
+            return Image.FromStream(stream);
+        }
+
+        /// <summary>
+        /// Loads an image from a file without locking the file. Note that this will 
+        /// lose some data, notably the RawFormat property.
+        /// </summary>
+        /// <param name="path">The path to the image file.</param>
+        /// <returns></returns>
+        public static Image CloneFromFile(string path)
+        {
+            //tmp is locked, so we need to copy its pixels into a new image
+            Image tmp;
+            try
+            {
+                tmp = Image.FromFile(path);
+            }
+            catch (ArgumentException)
+            {
+                //Probably not an image or a PNG with a dimension greater than 65,535 px
+                throw new InvalidImageException(path);
+            }
+            catch (OutOfMemoryException)
+            {
+                //Probably a corrupted image or we really ran out of memory
+                throw new InvalidImageException(path);
+            }
+            Image img = new Bitmap(tmp);
+            tmp.Dispose();
+            return img;
+        }
+
+        /// <summary>
+        /// Loads an image from a stream without needing to keep the 
+        /// stream open over the lifetime of the image. Note that this will 
+        /// lose some data, notably the RawFormat property.
+        /// </summary>
+        /// <param name="stream">The stream that contains the data for this image.</param>
+        /// <returns></returns>
+        public static Image CloneFromStream(Stream stream)
+        {
+            //tmp has an internal dependency on the stream
+            Image tmp = Image.FromStream(stream);
+            Image img = new Bitmap(tmp);
+            tmp.Dispose();
+            return img;
         }
 
         /// <summary>
@@ -47,63 +115,127 @@ namespace EzUtilities
         public static Image[] LoadFrames(string path)
         {
             Image img;
+            MemoryStream imgStream;
             try
             {
-                img = Image.FromFile(path);
+                img = FromFileNoLock(path, out imgStream);
             }
             catch (ArgumentException)
             {
-                //Probably not an image
-                throw new InvalidImageException(path, false);
+                //Probably not an image or a PNG with a dimension greater than 65,535 px
+                throw new InvalidImageException(path);
             }
             catch (OutOfMemoryException)
             {
-                //Probably a corrupted image
-                throw new InvalidImageException(path, true);
+                //Probably a corrupted image or we really ran out of memory
+                throw new InvalidImageException(path);
             }
 
-            //Check for multi-frame images
+            Image[] frames = img.ToFrames();
+
+            //Not sure if we have to manually dispose the stream or not
+            //But better safe than sorry, right?
+            imgStream.Dispose();
+            img.Dispose();
+
+            return frames;
+        }
+
+        /// <summary>
+        /// Loads an image and splits it into individual frames.
+        /// </summary>
+        /// <param name="path">The path to the image.</param>
+        /// <param name="streams">The MemoryStreams that correspond to the images.</param>
+        public static Image[] LoadFrames(string path, out MemoryStream[] streams)
+        {
+            Image img;
+            MemoryStream imgStream;
+            try
+            {
+                img = FromFileNoLock(path, out imgStream);
+            }
+            catch (ArgumentException)
+            {
+                //Probably not an image or a PNG with a dimension greater than 65,535 px
+                throw new InvalidImageException(path);
+            }
+            catch (OutOfMemoryException)
+            {
+                //Probably a corrupted image or we really ran out of memory
+                throw new InvalidImageException(path);
+            }
+
+            Image[] frames = img.ToFrames(out streams);
+
+            //Not sure if we have to manually dispose the stream or not
+            //But better safe than sorry, right?
+            imgStream.Dispose();
+            img.Dispose();
+
+            return frames;
+        }
+
+        /// <summary>
+        /// Splits an image into individual frames.
+        /// </summary>
+        /// <param name="img">The image to split.</param>
+        /// <returns></returns>
+        public static Image[] ToFrames(this Image img)
+        {
+            MemoryStream[] streams;
+            return img.ToFrames(out streams);
+        }
+
+        /// <summary>
+        /// Splits an image into individual frames.
+        /// </summary>
+        /// <param name="img">The image to split.</param>
+        /// <param name="streams">The MemoryStreams that correspond to the images.</param>
+        /// <returns></returns>
+        public static Image[] ToFrames(this Image img, out MemoryStream[] streams)
+        {
             FrameDimension dimension = new FrameDimension(img.FrameDimensionsList[0]);
             int frameCount = img.GetFrameCount(dimension);
 
             Image[] frames = new Image[frameCount];
-            if (frameCount == 1)
+            streams = new MemoryStream[frameCount];
+            for (int index = 0; index < frameCount; ++index)
             {
-                //Single-frame image
-                frames[0] = img;
-            }
-            else
-            {
-                //Multi-frame image
-                for (int index = 0; index < frameCount; ++index)
-                {
-                    frames[index] = img.GetFrame(dimension, index);
-                }
-
-                img.Dispose();
+                img.SelectActiveFrame(dimension, index);
+                MemoryStream ms = img.SaveToStream(ImageFormat.Bmp);
+                Image imgFrame = Image.FromStream(ms);
+                frames[index] = imgFrame;
+                streams[index] = ms;
             }
 
             return frames;
         }
 
         /// <summary>
-        /// Gets a specified frame of an image.
+        /// Saves this image to a stream.
         /// </summary>
-        /// <param name="img">The image to extract the frame from.</param>
-        /// <param name="dimension">The frame dimensions of the image.</param>
-        /// <param name="frameIndex">The zero-based index of the frame.</param>
-        private static Image GetFrame(this Image img, FrameDimension dimension, int frameIndex)
+        /// <param name="img">The image to save.</param>
+        /// <param name="format">The format of the image.</param>
+        /// <returns></returns>
+        public static MemoryStream SaveToStream(this Image img, ImageFormat format)
         {
-            Image imgFrame;
+            MemoryStream ms = new MemoryStream();
+            img.Save(ms, format);
+            return ms;
+        }
 
-            img.SelectActiveFrame(dimension, frameIndex);
-            using (MemoryStream byteStream = new MemoryStream())
-            {
-                img.Save(byteStream, img.RawFormat);
-                imgFrame = Image.FromStream(byteStream);
-            }
-
-            return imgFrame;
+        /// <summary>
+        /// Saves this image to a stream.
+        /// </summary>
+        /// <param name="img">The image to save.</param>
+        /// <param name="encoder">The encoder information for this image.</param>
+        /// <param name="encoderParams">The encoder parameters for this image.</param>
+        /// <returns></returns>
+        public static MemoryStream SaveToStream(this Image img, ImageCodecInfo encoder, EncoderParameters encoderParams)
+        {
+            MemoryStream ms = new MemoryStream();
+            img.Save(ms, encoder, encoderParams);
+            return ms;
         }
 
         /// <summary>

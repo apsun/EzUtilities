@@ -3,7 +3,7 @@ using System.IO;
 
 namespace EzUtilities
 {
-    class IOUtilities
+    public static class IOUtilities
     {
         /// <summary>
         /// Creates a directory, doing nothing if the directory already exists. 
