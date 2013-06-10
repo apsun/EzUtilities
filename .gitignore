@@ -1,0 +1,12 @@
+#--Standard--#
+
+bin/
+obj/
+*.user
+*.suo
+
+#--Unit tests--#
+
+UtilitiesTest/
+
+#--Other--#

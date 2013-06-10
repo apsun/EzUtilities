@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EzUtilities", "EzUtilities\EzUtilities.csproj", "{878A5242-4239-421B-A8A8-301B493E6151}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UtilitiesTest", "UtilitiesTest\UtilitiesTest.csproj", "{C94909B8-E166-43CF-88BC-CCD6951F4A8A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{878A5242-4239-421B-A8A8-301B493E6151}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{878A5242-4239-421B-A8A8-301B493E6151}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{878A5242-4239-421B-A8A8-301B493E6151}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{878A5242-4239-421B-A8A8-301B493E6151}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C94909B8-E166-43CF-88BC-CCD6951F4A8A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C94909B8-E166-43CF-88BC-CCD6951F4A8A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C94909B8-E166-43CF-88BC-CCD6951F4A8A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C94909B8-E166-43CF-88BC-CCD6951F4A8A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
