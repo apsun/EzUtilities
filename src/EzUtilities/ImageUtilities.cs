@@ -109,7 +109,8 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Loads an image and splits it into individual frames.
+        /// Loads an image and splits it into individual frames. 
+        /// Will throw an exception if the image has more than one frame dimension.
         /// </summary>
         /// <param name="path">The path to the image.</param>
         public static Image[] LoadFrames(string path)
@@ -142,7 +143,8 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Loads an image and splits it into individual frames.
+        /// Loads an image and splits it into individual frames. 
+        /// Will throw an exception if the image has more than one frame dimension.
         /// </summary>
         /// <param name="path">The path to the image.</param>
         /// <param name="streams">The MemoryStreams that correspond to the images.</param>
@@ -176,7 +178,8 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Splits an image into individual frames.
+        /// Splits an image into individual frames. 
+        /// Will throw an exception if the image has more than one frame dimension.
         /// </summary>
         /// <param name="img">The image to split.</param>
         /// <returns></returns>
@@ -187,26 +190,55 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Splits an image into individual frames.
+        /// Splits an image into individual frames. 
+        /// Will throw an exception if the image has more than one frame dimension.
         /// </summary>
         /// <param name="img">The image to split.</param>
         /// <param name="streams">The MemoryStreams that correspond to the images.</param>
         /// <returns></returns>
         public static Image[] ToFrames(this Image img, out MemoryStream[] streams)
         {
-            FrameDimension dimension = new FrameDimension(img.FrameDimensionsList[0]);
-            int frameCount = img.GetFrameCount(dimension);
+            if (img.FrameDimensionsList.Length < 0)
+            {
+                throw new ArgumentException("Image has more than one frame dimension");
+            }
+            if (img.FrameDimensionsList.Length > 1)
+            {
+                throw new ArgumentException("Image has more than one frame dimension");
+            }
 
+            FrameDimension dimension = new FrameDimension(img.FrameDimensionsList[0]);
+            return img.ToFrames(dimension, out streams);
+        }
+
+        /// <summary>
+        /// Splits an image into individual frames using the specified dimension.
+        /// </summary>
+        /// <param name="img">The image to split.</param>
+        /// <param name="dimension">The dimension to use when determining frames.</param>
+        /// <param name="streams">The MemoryStreams that correspond to the images.</param>
+        /// <returns></returns>
+        public static Image[] ToFrames(this Image img, FrameDimension dimension, out MemoryStream[] streams)
+        {
+            //We need to copy the image, or else SelectActiveFrame will
+            //mess up the original image (who knows why?)
+            MemoryStream origStream = img.SaveToStream(img.RawFormat);
+            Image copy = Image.FromStream(origStream);
+            
+            int frameCount = copy.GetFrameCount(dimension);
             Image[] frames = new Image[frameCount];
             streams = new MemoryStream[frameCount];
             for (int index = 0; index < frameCount; ++index)
             {
-                img.SelectActiveFrame(dimension, index);
-                MemoryStream ms = img.SaveToStream(ImageFormat.Bmp);
+                copy.SelectActiveFrame(dimension, index);
+                MemoryStream ms = copy.SaveToStream(ImageFormat.Bmp);
                 Image imgFrame = Image.FromStream(ms);
                 frames[index] = imgFrame;
                 streams[index] = ms;
             }
+
+            copy.Dispose();
+            origStream.Dispose();
 
             return frames;
         }
