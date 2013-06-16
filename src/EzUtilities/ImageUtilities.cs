@@ -48,6 +48,38 @@ namespace EzUtilities
         }
 
         /// <summary>
+        /// Loads an image, converting ArgumentException and 
+        /// OutOfMemoryException to InvalidImageException
+        /// </summary>
+        /// 
+        /// <param name="path">The path to the image file.</param>
+        /// 
+        /// <exception cref="InvalidImageException">
+        /// Thrown if the file is not an image, corrupted, 
+        /// or a PNG image with a dimension greater than 65,535 px.
+        /// </exception>
+        public static Image FromFileConvertException(string path)
+        {
+            Image img;
+            try
+            {
+                img = Image.FromFile(path);
+            }
+            catch (ArgumentException)
+            {
+                //Probably not an image or a PNG with a dimension greater than 65,535 px
+                throw new InvalidImageException(path);
+            }
+            catch (OutOfMemoryException)
+            {
+                //Probably a corrupted image or we really ran out of memory
+                throw new InvalidImageException(path);
+            }
+
+            return img;
+        }
+
+        /// <summary>
         /// Loads an image from a file without locking the file.
         /// </summary>
         /// 
@@ -81,24 +113,11 @@ namespace EzUtilities
         public static Image CloneFromFile(string path)
         {
             //tmp is locked, so we need to copy its pixels into a new image
-            Image tmp;
-            try
+            using (Image tmp = FromFileConvertException(path))
             {
-                tmp = Image.FromFile(path);
+                Image img = new Bitmap(tmp);
+                return img;
             }
-            catch (ArgumentException)
-            {
-                //Probably not an image or a PNG with a dimension greater than 65,535 px
-                throw new InvalidImageException(path);
-            }
-            catch (OutOfMemoryException)
-            {
-                //Probably a corrupted image or we really ran out of memory
-                throw new InvalidImageException(path);
-            }
-            Image img = new Bitmap(tmp);
-            tmp.Dispose();
-            return img;
         }
 
         /// <summary>
@@ -113,53 +132,11 @@ namespace EzUtilities
         public static Image CloneFromStream(Stream stream)
         {
             //tmp has an internal dependency on the stream
-            Image tmp = Image.FromStream(stream);
-            Image img = new Bitmap(tmp);
-            tmp.Dispose();
-            return img;
-        }
-
-        /// <summary>
-        /// Loads an image and splits it into individual frames. 
-        /// Will throw an exception if the image has more than one frame dimension.
-        /// </summary>
-        /// 
-        /// <param name="path">The path to the image.</param>
-        /// 
-        /// <exception cref="InvalidImageException">
-        /// Thrown if the file is not an image, corrupted, 
-        /// or a PNG image with a dimension greater than 65,535 px.
-        /// </exception>
-        /// <exception cref="System.ArgumentException">
-        /// Thrown if the image does not have exactly one frame dimension.
-        /// </exception>
-        public static Image[] LoadFrames(string path)
-        {
-            Image img;
-            MemoryStream imgStream;
-            try
+            using (Image tmp = Image.FromStream(stream))
             {
-                img = FromFileNoLock(path, out imgStream);
+                Image img = new Bitmap(tmp);
+                return img;
             }
-            catch (ArgumentException)
-            {
-                //Probably not an image or a PNG with a dimension greater than 65,535 px
-                throw new InvalidImageException(path);
-            }
-            catch (OutOfMemoryException)
-            {
-                //Probably a corrupted image or we really ran out of memory
-                throw new InvalidImageException(path);
-            }
-
-            Image[] frames = img.ToFrames();
-
-            //Not sure if we have to manually dispose the stream or not
-            //But better safe than sorry, right?
-            imgStream.Dispose();
-            img.Dispose();
-
-            return frames;
         }
 
         /// <summary>
@@ -179,47 +156,11 @@ namespace EzUtilities
         /// </exception>
         public static Image[] LoadFrames(string path, out MemoryStream[] streams)
         {
-            Image img;
-            MemoryStream imgStream;
-            try
+            using (Image img = FromFileConvertException(path))
             {
-                img = FromFileNoLock(path, out imgStream);
+                Image[] frames = img.ToFrames(out streams);
+                return frames;
             }
-            catch (ArgumentException)
-            {
-                //Probably not an image or a PNG with a dimension greater than 65,535 px
-                throw new InvalidImageException(path);
-            }
-            catch (OutOfMemoryException)
-            {
-                //Probably a corrupted image or we really ran out of memory
-                throw new InvalidImageException(path);
-            }
-
-            Image[] frames = img.ToFrames(out streams);
-
-            //Not sure if we have to manually dispose the stream or not
-            //But better safe than sorry, right?
-            imgStream.Dispose();
-            img.Dispose();
-
-            return frames;
-        }
-
-        /// <summary>
-        /// Splits an image into individual frames. 
-        /// Will throw an exception if the image has more than one frame dimension.
-        /// </summary>
-        /// 
-        /// <param name="img">The image to split.</param>
-        /// 
-        /// <exception cref="System.ArgumentException">
-        /// Thrown if the image does not have exactly one frame dimension.
-        /// </exception>
-        public static Image[] ToFrames(this Image img)
-        {
-            MemoryStream[] streams;
-            return img.ToFrames(out streams);
         }
 
         /// <summary>
@@ -235,16 +176,17 @@ namespace EzUtilities
         /// </exception>
         public static Image[] ToFrames(this Image img, out MemoryStream[] streams)
         {
-            if (img.FrameDimensionsList.Length < 1)
+            Guid[] dimensions = img.FrameDimensionsList;
+            if (dimensions.Length < 1)
             {
                 throw new ArgumentException("Image has no frame dimensions");
             }
-            if (img.FrameDimensionsList.Length > 1)
+            if (dimensions.Length > 1)
             {
                 throw new ArgumentException("Image has more than one frame dimension");
             }
 
-            FrameDimension dimension = new FrameDimension(img.FrameDimensionsList[0]);
+            FrameDimension dimension = new FrameDimension(dimensions[0]);
             return img.ToFrames(dimension, out streams);
         }
 
@@ -259,25 +201,23 @@ namespace EzUtilities
         {
             //We need to copy the image, or else SelectActiveFrame will
             //cause permanant changes to the original image.
-            MemoryStream origStream = img.SaveToStream(img.RawFormat);
-            Image copy = Image.FromStream(origStream);
-            
-            int frameCount = copy.GetFrameCount(dimension);
-            Image[] frames = new Image[frameCount];
-            streams = new MemoryStream[frameCount];
-            for (int index = 0; index < frameCount; ++index)
+            using (MemoryStream origStream = img.SaveToStream(img.RawFormat))
+            using (Image copy = Image.FromStream(origStream))
             {
-                copy.SelectActiveFrame(dimension, index);
-                MemoryStream ms = copy.SaveToStream(ImageFormat.Bmp);
-                Image imgFrame = Image.FromStream(ms);
-                frames[index] = imgFrame;
-                streams[index] = ms;
+                int frameCount = copy.GetFrameCount(dimension);
+                Image[] frames = new Image[frameCount];
+                streams = new MemoryStream[frameCount];
+                for (int index = 0; index < frameCount; ++index)
+                {
+                    copy.SelectActiveFrame(dimension, index);
+                    MemoryStream frameStream = copy.SaveToStream(ImageFormat.Bmp);
+                    Image imgFrame = Image.FromStream(frameStream);
+                    frames[index] = imgFrame;
+                    streams[index] = frameStream;
+                }
+
+                return frames;
             }
-
-            copy.Dispose();
-            origStream.Dispose();
-
-            return frames;
         }
 
         /// <summary>
@@ -287,7 +227,7 @@ namespace EzUtilities
         /// <param name="img">The image to save.</param>
         /// <param name="format">The format of the image.</param>
         /// 
-        /// <exception cref="System.ArgumentNullException">format is null.</exception>
+        /// <exception cref="System.ArgumentNullException"><see cref="format"/> is null.</exception>
         /// <exception cref="System.Runtime.InteropServices.ExternalException">The image was saved with the wrong image format</exception>
         public static MemoryStream SaveToStream(this Image img, ImageFormat format)
         {
