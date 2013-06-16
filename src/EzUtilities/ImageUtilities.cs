@@ -6,6 +6,9 @@ using System.Linq;
 
 namespace EzUtilities
 {
+    /// <summary>
+    /// Provides tools to load and save images.
+    /// </summary>
     public static class ImageUtilities
     {
         /// <summary>
@@ -23,12 +26,20 @@ namespace EzUtilities
                 get { return _path; }
             }
 
+            /// <summary>
+            /// Instantiates a new instance of the <see cref="InvalidImageException"/> class.
+            /// </summary>
             public InvalidImageException()
                 : this(null)
             {
 
             }
 
+            /// <summary>
+            /// Instantiates a new instance of the <see cref="InvalidImageException"/> class.
+            /// </summary>
+            /// 
+            /// <param name="path">The path to the image.</param>
             public InvalidImageException(string path)
                 : base("The file is not an image, is corrupted, or is too large")
             {
@@ -37,22 +48,11 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Creates an image from a file without locking the file.
+        /// Loads an image from a file without locking the file.
         /// </summary>
-        /// <param name="path">The path to the image file.</param>
-        /// <returns></returns>
-        public static Image FromFileNoLock(string path)
-        {
-            MemoryStream ms;
-            return FromFileNoLock(path, out ms);
-        }
-
-        /// <summary>
-        /// Creates an image from a file without locking the file.
-        /// </summary>
+        /// 
         /// <param name="path">The path to the image file.</param>
         /// <param name="stream">The MemoryStream that contains data for the image.</param>
-        /// <returns></returns>
         public static Image FromFileNoLock(string path, out MemoryStream stream)
         {
             stream = new MemoryStream();
@@ -64,11 +64,20 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Loads an image from a file without locking the file. Note that this will 
-        /// lose some data, notably the RawFormat property.
+        /// Loads an image from a file without locking the file. 
+        /// This does not create any <see cref="System.IO.Stream"/> 
+        /// dependencies, but will lose some data, notably the 
+        /// <see cref="System.Drawing.Image.RawFormat"/> property.
         /// </summary>
+        /// 
         /// <param name="path">The path to the image file.</param>
-        /// <returns></returns>
+        /// 
+        /// <exception cref="InvalidImageException">
+        /// Thrown if the file is not an image, corrupted, 
+        /// or a PNG image with a dimension greater than 65,535 px.
+        /// </exception>
+        /// 
+        /// <exception cref="System.IO.FileNotFoundException">The specified file does not exist.</exception>
         public static Image CloneFromFile(string path)
         {
             //tmp is locked, so we need to copy its pixels into a new image
@@ -95,10 +104,12 @@ namespace EzUtilities
         /// <summary>
         /// Loads an image from a stream without needing to keep the 
         /// stream open over the lifetime of the image. Note that this will 
-        /// lose some data, notably the RawFormat property.
+        /// lose some data, notably the <see cref="System.Drawing.Image.RawFormat"/> property.
         /// </summary>
+        /// 
         /// <param name="stream">The stream that contains the data for this image.</param>
-        /// <returns></returns>
+        /// 
+        /// <exception cref="System.ArgumentException">The stream does not have a valid image format-or-stream is null.</exception>
         public static Image CloneFromStream(Stream stream)
         {
             //tmp has an internal dependency on the stream
@@ -112,7 +123,16 @@ namespace EzUtilities
         /// Loads an image and splits it into individual frames. 
         /// Will throw an exception if the image has more than one frame dimension.
         /// </summary>
+        /// 
         /// <param name="path">The path to the image.</param>
+        /// 
+        /// <exception cref="InvalidImageException">
+        /// Thrown if the file is not an image, corrupted, 
+        /// or a PNG image with a dimension greater than 65,535 px.
+        /// </exception>
+        /// <exception cref="System.ArgumentException">
+        /// Thrown if the image does not have exactly one frame dimension.
+        /// </exception>
         public static Image[] LoadFrames(string path)
         {
             Image img;
@@ -146,8 +166,17 @@ namespace EzUtilities
         /// Loads an image and splits it into individual frames. 
         /// Will throw an exception if the image has more than one frame dimension.
         /// </summary>
+        /// 
         /// <param name="path">The path to the image.</param>
         /// <param name="streams">The MemoryStreams that correspond to the images.</param>
+        /// 
+        /// <exception cref="InvalidImageException">
+        /// Thrown if the file is not an image, corrupted, 
+        /// or a PNG image with a dimension greater than 65,535 px.
+        /// </exception>
+        /// <exception cref="System.ArgumentException">
+        /// Thrown if the image does not have exactly one frame dimension.
+        /// </exception>
         public static Image[] LoadFrames(string path, out MemoryStream[] streams)
         {
             Image img;
@@ -181,8 +210,12 @@ namespace EzUtilities
         /// Splits an image into individual frames. 
         /// Will throw an exception if the image has more than one frame dimension.
         /// </summary>
+        /// 
         /// <param name="img">The image to split.</param>
-        /// <returns></returns>
+        /// 
+        /// <exception cref="System.ArgumentException">
+        /// Thrown if the image does not have exactly one frame dimension.
+        /// </exception>
         public static Image[] ToFrames(this Image img)
         {
             MemoryStream[] streams;
@@ -193,14 +226,18 @@ namespace EzUtilities
         /// Splits an image into individual frames. 
         /// Will throw an exception if the image has more than one frame dimension.
         /// </summary>
+        /// 
         /// <param name="img">The image to split.</param>
         /// <param name="streams">The MemoryStreams that correspond to the images.</param>
-        /// <returns></returns>
+        /// 
+        /// <exception cref="System.ArgumentException">
+        /// Thrown if the image does not have exactly one frame dimension.
+        /// </exception>
         public static Image[] ToFrames(this Image img, out MemoryStream[] streams)
         {
-            if (img.FrameDimensionsList.Length < 0)
+            if (img.FrameDimensionsList.Length < 1)
             {
-                throw new ArgumentException("Image has more than one frame dimension");
+                throw new ArgumentException("Image has no frame dimensions");
             }
             if (img.FrameDimensionsList.Length > 1)
             {
@@ -214,14 +251,14 @@ namespace EzUtilities
         /// <summary>
         /// Splits an image into individual frames using the specified dimension.
         /// </summary>
+        /// 
         /// <param name="img">The image to split.</param>
         /// <param name="dimension">The dimension to use when determining frames.</param>
         /// <param name="streams">The MemoryStreams that correspond to the images.</param>
-        /// <returns></returns>
         public static Image[] ToFrames(this Image img, FrameDimension dimension, out MemoryStream[] streams)
         {
             //We need to copy the image, or else SelectActiveFrame will
-            //mess up the original image (who knows why?)
+            //cause permanant changes to the original image.
             MemoryStream origStream = img.SaveToStream(img.RawFormat);
             Image copy = Image.FromStream(origStream);
             
@@ -244,11 +281,14 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Saves this image to a stream.
+        /// Saves this image to a new stream.
         /// </summary>
+        /// 
         /// <param name="img">The image to save.</param>
         /// <param name="format">The format of the image.</param>
-        /// <returns></returns>
+        /// 
+        /// <exception cref="System.ArgumentNullException">format is null.</exception>
+        /// <exception cref="System.Runtime.InteropServices.ExternalException">The image was saved with the wrong image format</exception>
         public static MemoryStream SaveToStream(this Image img, ImageFormat format)
         {
             MemoryStream ms = new MemoryStream();
@@ -257,12 +297,14 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Saves this image to a stream.
+        /// Saves this image to a new stream.
         /// </summary>
+        /// 
         /// <param name="img">The image to save.</param>
         /// <param name="encoder">The encoder information for this image.</param>
         /// <param name="encoderParams">The encoder parameters for this image.</param>
-        /// <returns></returns>
+        /// 
+        /// <exception cref="System.Runtime.InteropServices.ExternalException">The image was saved with the wrong image format.</exception>
         public static MemoryStream SaveToStream(this Image img, ImageCodecInfo encoder, EncoderParameters encoderParams)
         {
             MemoryStream ms = new MemoryStream();
@@ -273,9 +315,13 @@ namespace EzUtilities
         /// <summary>
         /// Saves the image as a JPEG file with the specified quality, creating the containing directory.
         /// </summary>
+        /// 
         /// <param name="img">The image to save.</param>
         /// <param name="path">The path to the file.</param>
         /// <param name="quality">The quality of the image (0 to 100).</param>
+        /// 
+        /// <exception cref="System.ArgumentNullException">filename or encoder is null.</exception>
+        /// <exception cref="System.Runtime.InteropServices.ExternalException">The image was saved with the wrong image format.-or- The image was saved to the same file it was created from.</exception>
         public static void SaveAsJpeg(this Image img, string path, long quality)
         {
             var encoder = GetEncoder(ImageFormat.Jpeg);
@@ -289,6 +335,9 @@ namespace EzUtilities
         /// </summary>
         /// <param name="img">The image to save.</param>
         /// <param name="path">The path to the file.</param>
+        /// 
+        /// <exception cref="System.ArgumentNullException">filename or format is null.</exception>
+        /// <exception cref="System.Runtime.InteropServices.ExternalException">The image was saved with the wrong image format.-or- The image was saved to the same file it was created from.</exception>
         public static void SaveAsPng(this Image img, string path)
         {
             img.EzSave(path, ImageFormat.Png);
@@ -297,8 +346,12 @@ namespace EzUtilities
         /// <summary>
         /// Saves the image as a BMP file, creating the containing directory.
         /// </summary>
+        /// 
         /// <param name="img">The image to save.</param>
         /// <param name="path">The path to the file.</param>
+        /// 
+        /// <exception cref="System.ArgumentNullException">filename or format is null.</exception>
+        /// <exception cref="System.Runtime.InteropServices.ExternalException">The image was saved with the wrong image format.-or- The image was saved to the same file it was created from.</exception>
         public static void SaveAsBmp(this Image img, string path)
         {
             img.EzSave(path, ImageFormat.Bmp);
@@ -307,8 +360,12 @@ namespace EzUtilities
         /// <summary>
         /// Saves the image, creating the containing directory.
         /// </summary>
+        /// 
         /// <param name="img">The image to save.</param>
         /// <param name="path">The path to the file.</param>
+        /// 
+        /// <exception cref="System.ArgumentNullException">filename is null.</exception>
+        /// <exception cref="System.Runtime.InteropServices.ExternalException">The image was saved with the wrong image format.-or- The image was saved to the same file it was created from.</exception>
         public static void EzSave(this Image img, string path)
         {
             IOUtilities.CreateParentDirectory(path);
@@ -318,9 +375,13 @@ namespace EzUtilities
         /// <summary>
         /// Saves the image with the specified format, creating the containing directory.
         /// </summary>
+        /// 
         /// <param name="img">The image to save.</param>
         /// <param name="path">The path to the file.</param>
         /// <param name="format">The format of the image.</param>
+        /// 
+        /// <exception cref="System.ArgumentNullException">filename or format is null.</exception>
+        /// <exception cref="System.Runtime.InteropServices.ExternalException">The image was saved with the wrong image format.-or- The image was saved to the same file it was created from.</exception>
         public static void EzSave(this Image img, string path, ImageFormat format)
         {
             IOUtilities.CreateParentDirectory(path);
@@ -330,10 +391,14 @@ namespace EzUtilities
         /// <summary>
         /// Saves the image with the specified encoder and parameters, creating the containing directory.
         /// </summary>
+        /// 
         /// <param name="img">The image to save.</param>
         /// <param name="path">The path to the file.</param>
         /// <param name="encoder">The encoder information for this image.</param>
         /// <param name="encoderParams">The encoder parameters for this image.</param>
+        /// 
+        /// <exception cref="System.ArgumentNullException">filename or encoder is null.</exception>
+        /// <exception cref="System.Runtime.InteropServices.ExternalException">The image was saved with the wrong image format.-or- The image was saved to the same file it was created from.</exception>
         public static void EzSave(this Image img, string path, ImageCodecInfo encoder, EncoderParameters encoderParams)
         {
             IOUtilities.CreateParentDirectory(path);
@@ -341,9 +406,14 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Gets an encoder parameter that specifies the quality of the image.
+        /// Gets an encoder parameter that specifies the quality of an image.
         /// </summary>
-        /// <param name="quality"></param>
+        /// 
+        /// <param name="quality">The quality property of the codec, between 0 and 100.</param>
+        /// 
+        /// <exception cref="ArgumentOutOfRangeException">
+        /// Thrown if <see cref="quality"/> is not between 0 and 100.
+        /// </exception>
         public static EncoderParameters GetQualityEncoderParams(long quality)
         {
             if (quality < 0 || quality > 100) throw new ArgumentOutOfRangeException("quality");
@@ -355,8 +425,8 @@ namespace EzUtilities
         /// <summary>
         /// Gets the image encoder information that corresponds to an image format.
         /// </summary>
+        /// 
         /// <param name="format">The image format.</param>
-        /// <returns></returns>
         public static ImageCodecInfo GetEncoder(ImageFormat format)
         {
             ImageCodecInfo[] codecs = ImageCodecInfo.GetImageEncoders();

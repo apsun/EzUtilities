@@ -3,27 +3,50 @@ using System.Xml.Linq;
 
 namespace EzUtilities
 {
-    public static class XDocumentUtilities
+    /// <summary>
+    /// Provides tools for working with <see cref="System.Xml.Linq.XElement"/> objects.
+    /// </summary>
+    public static class XElementUtilities
     {
         /// <summary>
-        /// The exception that is thrown when an element was not found in an XElement.
+        /// The exception that is thrown when an element was not found.
         /// </summary>
-        public class XElementNotFoundException : Exception
+        public class ElementNotFoundException : Exception
         {
             private readonly string _parentName;
             private readonly string _elementName;
 
+            /// <summary>
+            /// Gets the name of the parent element containing the child element.
+            /// </summary>
             public string ParentName
             {
                 get { return _parentName; }
             }
+            /// <summary>
+            /// Gets the name of the child element that was not found.
+            /// </summary>
             public string ElementName
             {
                 get { return _elementName; }
             }
 
-            public XElementNotFoundException(string parentName, string elementName)
-                : base("Element '" + elementName + "' was not found in parent element '" + parentName + "'")
+            /// <summary>
+            /// Instantiates a new instance of the <see cref="ElementNotFoundException"/> class.
+            /// </summary>
+            public ElementNotFoundException()
+                : base("Child element was not found")
+            {
+
+            }
+
+            /// <summary>
+            /// Instantiates a new instance of the <see cref="ElementNotFoundException"/> class.
+            /// </summary>
+            /// <param name="parentName">The name of the parent element.</param>
+            /// <param name="elementName">The name of the child element.</param>
+            public ElementNotFoundException(string parentName, string elementName)
+                : base("Child element '" + elementName + "' was not found in parent element '" + parentName + "'")
             {
                 _parentName = parentName;
                 _elementName = elementName;
@@ -31,71 +54,84 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Adds a new element to this node with the specified name and value. 
-        /// Returns the added element.
+        /// Adds a new element with the specified name and value to this element.
         /// </summary>
-        /// <param name="parentNode">The node to add the element to.</param>
+        /// 
+        /// <param name="parent">The element to add the new child element to.</param>
         /// <param name="name">The name of the new element.</param>
         /// <param name="value">The value of the new element.</param>
-        public static XElement AddElement(this XElement parentNode, string name, object value)
+        /// 
+        /// <returns>The added element.</returns>
+        public static XElement AddElement(this XElement parent, string name, object value)
         {
             XElement element = new XElement(name, value);
-            parentNode.Add(element);
+            parent.Add(element);
             return element;
         }
 
         /// <summary>
-        /// Adds a new element with multiple values to this element. 
-        /// Returns the added element.
+        /// Adds a new element with multiple values to this element.
         /// </summary>
-        /// <param name="parentNode">The node to add the element to.</param>
+        /// 
+        /// <param name="parent">The element to add the new child element to.</param>
         /// <param name="name">The name of the new element.</param>
         /// <param name="values">The values of the new element.</param>
-        public static XElement AddElement(this XElement parentNode, string name, params object[] values)
+        /// 
+        /// <returns>The added element.</returns>
+        public static XElement AddElement(this XElement parent, string name, params object[] values)
         {
             XElement element = new XElement(name, values);
-            parentNode.Add(element);
+            parent.Add(element);
             return element;
         }
 
         /// <summary>
         /// Gets the value of a specified child element.
         /// </summary>
-        /// <param name="parentNode">The parent node.</param>
-        /// <param name="name">The name of the child node to find.</param>
-        public static string GetChildValue(this XElement parentNode, string name)
+        /// 
+        /// <param name="parent">The element that contains the child element.</param>
+        /// <param name="name">The name of the child element to find.</param>
+        /// 
+        /// <returns>The value of the child element, if found.</returns>
+        /// 
+        /// <exception cref="ElementNotFoundException">Thrown if the child element was not found.</exception>
+        public static string GetChildValue(this XElement parent, string name)
         {
-            XElement element = parentNode.Element(name);
-            if (element == null) throw new XElementNotFoundException(parentNode.GetName(), name);
+            XElement element = parent.Element(name);
+            if (element == null) throw new ElementNotFoundException(parent.GetName(), name);
             return element.Value;
         }
 
         /// <summary>
-        /// Sets the value of a specified child element. 
-        /// Returns the child element.
+        /// Sets the value of a specified child element.
         /// </summary>
-        /// <param name="parentNode">The parent node.</param>
-        /// <param name="nodeName">The name of the node whose value you want to change.</param>
-        /// <param name="value">The new value of the child node.</param>
-        public static XElement SetChildValue(this XElement parentNode, string nodeName, object value)
+        /// 
+        /// <param name="parent">The element that contains the child element.</param>
+        /// <param name="name">The name of the child element whose value you want to change.</param>
+        /// <param name="value">The new value of the child element.</param>
+        /// 
+        /// <returns>The child element.</returns>
+        public static XElement SetChildValue(this XElement parent, string name, object value)
         {
-            XElement element = parentNode.Element(nodeName);
-            if (element == null) element = parentNode.AddElement(nodeName, value);
+            XElement element = parent.Element(name);
+            if (element == null) element = parent.AddElement(name, value);
             else element.SetValue(value);
             return element;
         }
 
         /// <summary>
-        /// Sets multiple values of a specified child element. 
-        /// Returns the child element.
+        /// Sets multiple values of a specified child element.
         /// </summary>
-        /// <param name="parentNode">The parent node.</param>
-        /// <param name="nodeName">The name of the node whose value you want to change.</param>
-        /// <param name="values">The new values of the child node.</param>
-        public static XElement SetChildValue(this XElement parentNode, string nodeName, params object[] values)
+        /// 
+        /// <param name="parent">The element that contains the child element.</param>
+        /// <param name="name">The name of the child element whose value you want to change.</param>
+        /// <param name="values">The new values of the child element.</param>
+        /// 
+        /// <returns>The child element.</returns>
+        public static XElement SetChildValue(this XElement parent, string name, params object[] values)
         {
-            XElement element = parentNode.Element(nodeName);
-            if (element == null) element = parentNode.AddElement(nodeName, values);
+            XElement element = parent.Element(name);
+            if (element == null) element = parent.AddElement(name, values);
             else element.SetValue(values);
             return element;
         }
@@ -103,23 +139,31 @@ namespace EzUtilities
         /// <summary>
         /// Gets an element with the specified name, creating it if it does not exist.
         /// </summary>
-        /// <param name="parentNode">The parent node.</param>
-        /// <param name="name">The name of the element to find.</param>
-        public static XElement TryGetElement(this XElement parentNode, string name)
+        /// 
+        /// <param name="parent">The element that contains the child element.</param>
+        /// <param name="name">The name of the child element to find.</param>
+        /// 
+        /// <returns>The element, if found; otherwise, a new empty element.</returns>
+        public static XElement TryGetElement(this XElement parent, string name)
         {
-            XElement element = parentNode.Element(name) ?? parentNode.AddElement(name);
+            XElement element = parent.Element(name) ?? parent.AddElement(name);
             return element;
         }
 
         /// <summary>
         /// Gets an element with the specified name.
         /// </summary>
-        /// <param name="parentNode">The parent node.</param>
-        /// <param name="name">The name of the element to find.</param>
-        public static XElement GetElement(this XElement parentNode, string name)
+        /// 
+        /// <param name="parent">The element that contains the child element.</param>
+        /// <param name="name">The name of the child element to find.</param>
+        /// 
+        /// <returns>The element, if found.</returns>
+        /// 
+        /// <exception cref="ElementNotFoundException">Thrown if the element was not found.</exception>
+        public static XElement GetElement(this XElement parent, string name)
         {
-            XElement element = parentNode.Element(name);
-            if (element == null) throw new XElementNotFoundException(parentNode.GetName(), name);
+            XElement element = parent.Element(name);
+            if (element == null) throw new ElementNotFoundException(parent.GetName(), name);
             return element;
         }
 
