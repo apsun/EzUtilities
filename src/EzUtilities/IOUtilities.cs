@@ -46,18 +46,17 @@ namespace EzUtilities
         /// Returns false if the parent directory already exists; otherwise, true.
         /// </returns>
         /// 
-        /// <exception cref="System.IO.IOException">The network name is not known.</exception>
-        /// <exception cref="System.UnauthorizedAccessException">The caller does not have the required permission. </exception>
-        /// <exception cref="System.ArgumentException">path is a zero-length string, contains only white space, or contains one or more invalid characters.-or-path is prefixed with, or contains only a colon character (:).</exception>
+        /// <exception cref="System.ArgumentException">path is a zero-length string, contains only white space, or contains one or more of the invalid characters defined in <see cref="M:System.IO.Path.GetInvalidPathChars" />.-or- The system could not retrieve the absolute path. </exception>
+        /// <exception cref="System.Security.SecurityException">The caller does not have the required permissions. </exception>
         /// <exception cref="System.ArgumentNullException">path is null. </exception>
-        /// <exception cref="System.IO.PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length. For example, on Windows-based platforms, paths must be less than 248 characters and file names must be less than 260 characters. </exception>
-        /// <exception cref="System.IO.DirectoryNotFoundException">The specified path is invalid (for example, it is on an unmapped drive). </exception>
-        /// <exception cref="System.NotSupportedException">path contains a colon character (:) that is not part of a drive label ("C:\").</exception>
+        /// <exception cref="System.NotSupportedException">path contains a colon (":") that is not part of a volume identifier (for example, "c:\"). </exception>
+        /// <exception cref="System.IO.PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length. For example, on Windows-based platforms, paths must be less than 248 characters, and file names must be less than 260 characters. </exception>
         public static bool CreateParentDirectory(string path)
         {
-            string parentDir = Path.GetDirectoryName(path);
+            //Same as Directory.GetParent without the overhead
+            string parentDir = Path.GetDirectoryName(Path.GetFullPath(path));
 
-            //Can only be null if path is also null
+            //Will never be null, Path.GetFullPath throws the same exception anyways
             if (parentDir == null) throw new ArgumentNullException("path");
 
             if (Directory.Exists(parentDir)) return false;
