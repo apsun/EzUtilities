@@ -24,6 +24,23 @@ namespace EzUtilities
         }
 
         /// <summary>
+        /// Copies the contents of the 2D array into a new array.
+        /// </summary>
+        /// 
+        /// <typeparam name="T">The array type.</typeparam>
+        /// <param name="array">The array to copy.</param>
+        /// 
+        /// <returns>The copied array.</returns>
+        public static T[,] Copy<T>(this T[,] array)
+        {
+            int xLength = array.GetLength(0);
+            int yLength = array.GetLength(1);
+            T[,] copy = new T[xLength, yLength];
+            Array.Copy(array, copy, array.Length);
+            return copy;
+        }
+
+        /// <summary>
         /// Resizes an array to remove all elements after and including the first null element.
         /// </summary>
         /// 
@@ -32,9 +49,8 @@ namespace EzUtilities
         /// <returns>The resized array.</returns>
         public static T[] TrimFromStart<T>(this T[] array) where T : class
         {
-            int endIndex = array.Length - 1;
             int indexOfFirstNull;
-            for (indexOfFirstNull = 0; indexOfFirstNull <= endIndex; ++indexOfFirstNull)
+            for (indexOfFirstNull = 0; indexOfFirstNull < array.Length; ++indexOfFirstNull)
             {
                 if (array[indexOfFirstNull] == null) break;
             }
@@ -54,9 +70,8 @@ namespace EzUtilities
         /// <returns>The resized array.</returns>
         public static T[] TrimFromEnd<T>(this T[] array) where T : class
         {
-            int startIndex = array.Length - 1;
             int indexOfFirstValue;
-            for (indexOfFirstValue = startIndex; indexOfFirstValue >= 0; --indexOfFirstValue)
+            for (indexOfFirstValue = array.Length - 1; indexOfFirstValue >= 0; --indexOfFirstValue)
             {
                 if (array[indexOfFirstValue] != null) break;
             }
@@ -81,7 +96,7 @@ namespace EzUtilities
             int nullsRemoved = 0;
             int length = array.Length;
             T[] copy = new T[length];
-            for (int i = 0; i < length; ++i)
+            for (int i = 0; i < array.Length; ++i)
             {
                 T current = array[i];
                 if (current == null)
