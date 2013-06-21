@@ -6,7 +6,7 @@ namespace EzUtilities
     /// <summary>
     /// Provides tools for working with <see cref="System.Xml.Linq.XElement"/> objects.
     /// </summary>
-    public static class XElementUtilities
+    public static class XmlUtilities
     {
         /// <summary>
         /// The exception that is thrown when an element was not found.
@@ -51,6 +51,20 @@ namespace EzUtilities
                 _parentName = parentName;
                 _elementName = elementName;
             }
+        }
+
+        /// <summary>
+        /// Creates an empty XDocument with the specified root node name.
+        /// </summary>
+        /// 
+        /// <param name="rootNodeName">The name of the root node.</param>
+        /// <param name="rootNode">The generated root node.</param>
+        /// 
+        /// <returns>The generated XDocument.</returns>
+        public static XDocument CreateDocumentFromRoot(string rootNodeName, out XElement rootNode)
+        {
+            rootNode = new XElement(rootNodeName);
+            return new XDocument(rootNode);
         }
 
         /// <summary>
