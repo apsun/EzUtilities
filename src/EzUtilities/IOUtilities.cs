@@ -61,7 +61,7 @@ namespace EzUtilities
 
             if (Directory.Exists(parentDir)) return false;
 
-            Directory.CreateDirectory(path);
+            Directory.CreateDirectory(parentDir);
 
             return true;
         }

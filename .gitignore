@@ -8,5 +8,6 @@ obj/
 #--Unit tests--#
 
 UtilitiesTest/
+PerformanceTest/
 
 #--Other--#

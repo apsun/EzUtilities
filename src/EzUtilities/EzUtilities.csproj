@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ArrayUtilities.cs" />
     <Compile Include="ImageUtilities.cs" />
     <Compile Include="IOUtilities.cs" />
     <Compile Include="MathUtilities.cs" />
