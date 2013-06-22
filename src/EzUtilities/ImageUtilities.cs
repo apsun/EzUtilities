@@ -372,5 +372,13 @@ namespace EzUtilities
             ImageCodecInfo[] codecs = ImageCodecInfo.GetImageEncoders();
             return codecs.FirstOrDefault(codec => codec.FormatID == format.Guid);
         }
+
+        /// <summary>
+        /// Gets a rectangle that surrounds this image.
+        /// </summary>
+        public static Rectangle GetBounds(this Image img)
+        {
+            return new Rectangle(0, 0, img.Width, img.Height);
+        }
     }
 }

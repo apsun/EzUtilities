@@ -75,8 +75,10 @@ namespace EzUtilities
         /// <returns>The minimum value, or the input if there is only one value.</returns>
         /// 
         /// <exception cref="System.ArgumentException">Thrown if <see cref="values"/> is empty.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if <see cref="values"/> is null.</exception>
         public static T Min<T>(params T[] values) where T : IComparable<T>
         {
+            if (values == null) throw new ArgumentNullException("values");
             int count = values.Length;
             if (count == 0) throw new ArgumentException("You must provide at least one value");
             T currMin = values[0];
@@ -97,8 +99,10 @@ namespace EzUtilities
         /// <returns>The maximum value, or the input if there is only one value.</returns>
         /// 
         /// <exception cref="System.ArgumentException">Thrown if <see cref="values"/> is empty.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if <see cref="values"/> is null.</exception>
         public static T Max<T>(params T[] values) where T : IComparable<T>
         {
+            if (values == null) throw new ArgumentNullException("values");
             int count = values.Length;
             if (count == 0) throw new ArgumentException("You must provide at least one value");
             T currMax = values[0];
@@ -108,6 +112,26 @@ namespace EzUtilities
                 if (num.CompareTo(currMax) == 1) currMax = num;
             }
             return currMax;
+        }
+
+        /// <summary>
+        /// Checks whether the value is within a range, inclusive.
+        /// </summary>
+        /// 
+        /// <param name="value">The value to check.</param>
+        /// <param name="lower">The inclusive lower bound.</param>
+        /// <param name="higher">The inclusive upper bound.</param>
+        /// 
+        /// <returns>Whether the value is within the range.</returns>
+        /// 
+        /// <exception cref="ArgumentException">Thrown if the lower bound is greater than the upper bound.</exception>
+        public static bool IsBetween<T>(this T value, T lower, T higher) where T : IComparable<T>
+        {
+            if (lower.CompareTo(higher) == 1)
+            {
+                throw new ArgumentException("Upper bound must be greater than lower bound");
+            }
+            return value.CompareTo(lower) >= 0 && value.CompareTo(higher) <= 0;
         }
     }
 }
