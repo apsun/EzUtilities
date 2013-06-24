@@ -210,7 +210,7 @@ namespace EzUtilities
                 for (int index = 0; index < frameCount; ++index)
                 {
                     copy.SelectActiveFrame(dimension, index);
-                    MemoryStream frameStream = copy.SaveToStream(ImageFormat.Bmp);
+                    MemoryStream frameStream = copy.SaveToStream(ImageFormat.Png);
                     Image imgFrame = Image.FromStream(frameStream);
                     frames[index] = imgFrame;
                     streams[index] = frameStream;
