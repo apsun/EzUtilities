@@ -19,7 +19,7 @@ namespace EzUtilities
         /// creation failed or the directory already exists.
         /// </returns>
         /// 
-        /// <exception cref="System.ArgumentNullException">Thrown if <see cref="path"/> is null.</exception>
+        /// <exception cref="System.ArgumentNullException">Thrown if path is null.</exception>
         public static bool CreateDirectory(string path)
         {
             if (path == null) throw new ArgumentNullException("path");
@@ -74,7 +74,7 @@ namespace EzUtilities
         /// 
         /// <returns>Whether the directory was successfully deleted.</returns>
         /// 
-        /// <exception cref="System.ArgumentNullException">Thrown if <see cref="path"/> is null.</exception>
+        /// <exception cref="System.ArgumentNullException">Thrown if path is null.</exception>
         public static bool DeleteDirectory(string path)
         {
             return DeleteDirectory(path, true);
@@ -89,7 +89,7 @@ namespace EzUtilities
         /// 
         /// <returns>Whether the directory was successfully deleted.</returns>
         /// 
-        /// <exception cref="ArgumentNullException">Thrown if <see cref="path"/> is null.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
         public static bool DeleteDirectory(string path, bool recursive)
         {
             if (path == null) throw new ArgumentNullException("path");
@@ -146,11 +146,11 @@ namespace EzUtilities
         /// <returns>Whether the destination file was overwritten, if it existed.</returns>
         /// 
         /// <exception cref="System.ArgumentNullException">
-        /// Thrown if <see cref="srcPath"/> or <see cref="destPath"/> is null.
+        /// Thrown if srcPath or destPath is null.
         /// </exception>
         /// 
         /// <exception cref="System.IO.IOException">
-        /// Thrown if the destination file already exists and <see cref="overwrite"/> is false, 
+        /// Thrown if the destination file already exists and overwrite is false, 
         /// or if the source file was not found.
         /// </exception>
         /// 

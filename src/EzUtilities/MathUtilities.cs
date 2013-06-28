@@ -74,8 +74,8 @@ namespace EzUtilities
         /// 
         /// <returns>The minimum value, or the input if there is only one value.</returns>
         /// 
-        /// <exception cref="System.ArgumentException">Thrown if <see cref="values"/> is empty.</exception>
-        /// <exception cref="ArgumentNullException">Thrown if <see cref="values"/> is null.</exception>
+        /// <exception cref="System.ArgumentException">Thrown if values is empty.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if values is null.</exception>
         public static T Min<T>(params T[] values) where T : IComparable<T>
         {
             if (values == null) throw new ArgumentNullException("values");
@@ -98,8 +98,8 @@ namespace EzUtilities
         /// 
         /// <returns>The maximum value, or the input if there is only one value.</returns>
         /// 
-        /// <exception cref="System.ArgumentException">Thrown if <see cref="values"/> is empty.</exception>
-        /// <exception cref="ArgumentNullException">Thrown if <see cref="values"/> is null.</exception>
+        /// <exception cref="System.ArgumentException">Thrown if values is empty.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if values is null.</exception>
         public static T Max<T>(params T[] values) where T : IComparable<T>
         {
             if (values == null) throw new ArgumentNullException("values");
@@ -132,6 +132,96 @@ namespace EzUtilities
                 throw new ArgumentException("Upper bound must be greater than lower bound");
             }
             return value.CompareTo(lower) >= 0 && value.CompareTo(higher) <= 0;
+        }
+
+        /// <summary>
+        /// Finds the minimum and maximum of a pair of values.
+        /// </summary>
+        /// 
+        /// <param name="value1">The first value.</param>
+        /// <param name="value2">The second value.</param>
+        /// <param name="min">The lesser value.</param>
+        /// <param name="max">The greater value.</param>
+        /// 
+        /// <returns>
+        /// -1 if value1 is less than value2, 
+        /// 0 if value1 equals value2, 
+        /// 1 if value1 is greater than value2.
+        /// </returns>
+        public static int GetMinMax<T>(T value1, T value2, out T min, out T max) where T : IComparable<T>
+        {
+            int returnValue = value1.CompareTo(value2);
+
+            if (returnValue == -1) //value1 < value2
+            {
+                min = value1;
+                max = value2;
+            }
+            else //value1 >= value2
+            {
+                min = value2;
+                max = value1;
+            }
+
+            return returnValue;
+        }
+
+        /// <summary>
+        /// Wraps a number within a range of [lower, upper).
+        /// </summary>
+        /// 
+        /// <param name="num">The number to wrap.</param>
+        /// <param name="lower">The inclusive lower bound.</param>
+        /// <param name="upper">The exclusive upper bound.</param>
+        /// 
+        /// <returns>The wrapped number.</returns>
+        /// 
+        /// <exception cref="ArgumentException">Thrown if lower is greater than upper.</exception>
+        public static int Wrap(this int num, int lower, int upper)
+        {
+            if (upper <= lower) throw new ArgumentException("upper must be greater than lower");
+
+            int t = (num - lower) % (upper - lower);
+
+            return t < 0 ? t + upper : t + lower;
+        }
+
+        /// <summary>
+        /// Wraps a number within a range of [lower, upper).
+        /// </summary>
+        /// 
+        /// <param name="num">The number to wrap.</param>
+        /// <param name="lower">The inclusive lower bound.</param>
+        /// <param name="upper">The exclusive upper bound.</param>
+        /// 
+        /// <returns>The wrapped number.</returns>
+        /// 
+        /// <exception cref="ArgumentException">Thrown if lower is greater than upper.</exception>
+        public static float Wrap(this float num, float lower, float upper)
+        {
+            if (upper <= lower) throw new ArgumentException("upper must be greater than lower");
+
+            float t = (num - lower) % (upper - lower);
+
+            return t < 0 ? t + upper : t + lower;
+        }
+
+        /// <summary>
+        /// Wraps a number within a range of [lower, upper).
+        /// </summary>
+        /// 
+        /// <param name="num">The number to wrap.</param>
+        /// <param name="lower">The inclusive lower bound.</param>
+        /// <param name="upper">The exclusive upper bound.</param>
+        /// 
+        /// <returns>The wrapped number.</returns>
+        /// 
+        /// <exception cref="ArgumentException">Thrown if lower is greater than upper.</exception>
+        public static double Wrap(this double num, double lower, double upper)
+        {
+            double t = (num - lower) % (upper - lower);
+
+            return t < 0 ? t + upper : t + lower;
         }
     }
 }

@@ -32,7 +32,7 @@ namespace EzUtilities
         /// <returns>The generated random value.</returns>
         /// 
         /// <exception cref="System.ArgumentOutOfRangeException">
-        /// Thrown if <see cref="lowerBound"/> is greater than <see cref="upperBound"/>.
+        /// Thrown if lowerBound is greater than upperBound.
         /// </exception>
         public static int GetRandomInteger(int lowerBound, int upperBound)
         {
@@ -75,6 +75,18 @@ namespace EzUtilities
         public static bool GetBinaryOutcome(int probability)
         {
             return probability > Rnd.Next(100);
+        }
+
+        /// <summary>
+        /// Generates an outcome (true or false) based on a probability of getting true.
+        /// </summary>
+        /// 
+        /// <param name="probability">The probability of getting true (0-1).</param>
+        /// 
+        /// <returns>True or false, depending on the outcome of the roll.</returns>
+        public static bool GetBinaryOutcome(double probability)
+        {
+            return probability > Rnd.NextDouble();
         }
     }
 }

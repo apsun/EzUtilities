@@ -227,7 +227,7 @@ namespace EzUtilities
         /// <param name="img">The image to save.</param>
         /// <param name="format">The format of the image.</param>
         /// 
-        /// <exception cref="System.ArgumentNullException"><see cref="format"/> is null.</exception>
+        /// <exception cref="System.ArgumentNullException">Thrown if format is null.</exception>
         /// <exception cref="System.Runtime.InteropServices.ExternalException">The image was saved with the wrong image format</exception>
         public static MemoryStream SaveToStream(this Image img, ImageFormat format)
         {
@@ -352,7 +352,7 @@ namespace EzUtilities
         /// <param name="quality">The quality property of the codec, between 0 and 100.</param>
         /// 
         /// <exception cref="ArgumentOutOfRangeException">
-        /// Thrown if <see cref="quality"/> is not between 0 and 100.
+        /// Thrown if quality is not between 0 and 100.
         /// </exception>
         public static EncoderParameters GetQualityEncoderParams(long quality)
         {
