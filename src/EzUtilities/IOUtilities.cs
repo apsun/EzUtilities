@@ -173,11 +173,75 @@ namespace EzUtilities
         }
 
         /// <summary>
+        /// Deletes all files and directories in the specified directory. 
+        /// Returns false if the path is not a directory, the directory 
+        /// does not exist, or if any items were not successfully deleted.
+        /// </summary>
+        /// 
+        /// <param name="path">The path of the directory to empty.</param>
+        /// 
+        /// <returns>Whether all items within the directory were deleted.</returns>
+        public static bool EmptyDirectory(string path)
+        {
+            if (!Directory.Exists(path)) return false;
+
+            bool allItemsDeleted = true;
+            foreach (var file in Directory.GetFiles(path))
+            {
+                if (!DeleteFile(file)) allItemsDeleted = false;
+            }
+
+            foreach (var dir in Directory.GetDirectories(path))
+            {
+                if (!DeleteDirectory(dir)) allItemsDeleted = false;
+            }
+
+            return allItemsDeleted;
+
+        }
+
+        /// <summary>
         /// Gets a random file name without an extension.
         /// </summary>
         public static string GetRandomFileName()
         {
             return Path.ChangeExtension(Path.GetRandomFileName(), null);
+        }
+
+        /// <summary>
+        /// Appends a directory seperator to the end of the path if there is not one already.
+        /// </summary>
+        public static string AppendSeperator(string path)
+        {
+            path = path.TrimEnd(' ', '\t', '\n', '\v', '\f', '\r', '\x0085');
+            if (path.LastIndexOf(Path.DirectorySeparatorChar) == path.Length - 1) return path;
+            if (path.LastIndexOf(Path.AltDirectorySeparatorChar) == path.Length - 1) return path;
+
+            return path + Path.DirectorySeparatorChar;
+        }
+
+        /// <summary>
+        /// Throws a <see cref="System.IO.FileNotFoundException"/> if the file does not exist.
+        /// </summary>
+        /// 
+        /// <param name="path">The path to the file.</param>
+        /// 
+        /// <exception cref="FileNotFoundException">File was not found.</exception>
+        public static void EnsureFileExists(string path)
+        {
+            if (!File.Exists(path)) throw new FileNotFoundException("File not found", path);
+        }
+
+        /// <summary>
+        /// Throws a <see cref="System.IO.DirectoryNotFoundException"/> if the file does not exist.
+        /// </summary>
+        /// 
+        /// <param name="path">The path to the file.</param>
+        /// 
+        /// <exception cref="DirectoryNotFoundException">Directory was not found.</exception>
+        public static void EnsureDirectoryExists(string path)
+        {
+            if (!Directory.Exists(path)) throw new DirectoryNotFoundException("Directory not found: " + path);
         }
     }
 }
