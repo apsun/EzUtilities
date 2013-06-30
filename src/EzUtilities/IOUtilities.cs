@@ -233,10 +233,10 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Throws a <see cref="System.IO.DirectoryNotFoundException"/> if the file does not exist.
+        /// Throws a <see cref="System.IO.DirectoryNotFoundException"/> if the directory does not exist.
         /// </summary>
         /// 
-        /// <param name="path">The path to the file.</param>
+        /// <param name="path">The path to the directory.</param>
         /// 
         /// <exception cref="DirectoryNotFoundException">Directory was not found.</exception>
         public static void EnsureDirectoryExists(string path)
