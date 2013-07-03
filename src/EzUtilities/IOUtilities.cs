@@ -57,11 +57,13 @@ namespace EzUtilities
             string parentDir = Path.GetDirectoryName(Path.GetFullPath(path));
 
             //Will never be null, Path.GetFullPath throws the same exception anyways
-            if (parentDir == null) throw new ArgumentNullException("path");
+            //if (parentDir == null) throw new ArgumentNullException("path");
 
+            // ReSharper disable AssignNullToNotNullAttribute
             if (Directory.Exists(parentDir)) return false;
 
             Directory.CreateDirectory(parentDir);
+            // ReSharper restore AssignNullToNotNullAttribute
 
             return true;
         }
@@ -211,8 +213,11 @@ namespace EzUtilities
         /// <summary>
         /// Appends a directory seperator to the end of the path if there is not one already.
         /// </summary>
+        /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
         public static string AppendSeperator(string path)
         {
+            if (path == null) throw new ArgumentNullException("path");
+
             path = path.TrimEnd(' ', '\t', '\n', '\v', '\f', '\r', '\x0085');
             if (path.LastIndexOf(Path.DirectorySeparatorChar) == path.Length - 1) return path;
             if (path.LastIndexOf(Path.AltDirectorySeparatorChar) == path.Length - 1) return path;
