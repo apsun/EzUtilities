@@ -61,17 +61,11 @@ namespace EzUtilities
         /// <exception cref="System.IO.PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length. For example, on Windows-based platforms, paths must be less than 248 characters, and file names must be less than 260 characters. </exception>
         public static bool CreateParentDirectory(string path)
         {
-            //Same as Directory.GetParent without the overhead
-            string parentDir = Path.GetDirectoryName(Path.GetFullPath(path));
+            string parentDir = GetParentDirectory(path);
 
-            //Will never be null, Path.GetFullPath throws the same exception anyways
-            //if (parentDir == null) throw new ArgumentNullException("path");
-
-            // ReSharper disable AssignNullToNotNullAttribute
             if (Directory.Exists(parentDir)) return false;
 
             Directory.CreateDirectory(parentDir);
-            // ReSharper restore AssignNullToNotNullAttribute
 
             return true;
         }
@@ -211,6 +205,25 @@ namespace EzUtilities
         }
 
         /// <summary>
+        /// Gets the parent directory of the specified file or directory.
+        /// </summary>
+        /// 
+        /// <param name="path">The path of the file or directory.</param>
+        /// 
+        /// <returns>The path of the parent directory.</returns>
+        /// 
+        /// <exception cref="ArgumentException">Thrown if path is a root path.</exception>
+        /// <exception cref="System.ArgumentNullException">Thrown if path is null.</exception>
+        public static string GetParentDirectory(string path)
+        {
+            if (path == null) throw new ArgumentNullException("path");
+            if (path.Length > 3) path = RemoveTrailingSeparator(path);
+            string parent = Path.GetDirectoryName(path);
+            if (parent == null) throw new ArgumentException("Path is a root path");
+            return parent;
+        }
+
+        /// <summary>
         /// Gets a random file name without an extension.
         /// </summary>
         public static string GetRandomFileName()
@@ -248,11 +261,11 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Prepends a directory seperator to the beginning of the path if there is not one already. 
-        /// Returns the directory seperator if path is empty or null.
+        /// Prepends a directory separator to the beginning of the path if there is not one already. 
+        /// Returns the directory separator if path is empty or null.
         /// </summary>
         /// <exception cref="ArgumentException">Thrown if path is not relative.</exception>
-        public static string PrependSeperator(string path)
+        public static string PrependSeparator(string path)
         {
             if (string.IsNullOrEmpty(path))
                 return Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture);
@@ -268,10 +281,10 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Appends a directory seperator to the end of the path if there is not one already. 
-        /// Returns the directory seperator if path is empty or null.
+        /// Appends a directory separator to the end of the path if there is not one already. 
+        /// Returns the directory separator if path is empty or null.
         /// </summary>
-        public static string AppendSeperator(string path)
+        public static string AppendSeparator(string path)
         {
             if (string.IsNullOrEmpty(path))
                 return Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture);
@@ -284,12 +297,12 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Removes the directory seperator character from the 
+        /// Removes the directory separator character from the 
         /// beginning of the path, if it exists.
         /// </summary>
         /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
         /// <exception cref="ArgumentException">Thrown if path is not relative.</exception>
-        public static string RemoveLeadingSeperator(string path)
+        public static string RemoveLeadingSeparator(string path)
         {
             if (IsPathAbsolute(path)) throw new ArgumentException("Path is not relative");
             path = RemoveLeadingWhitespace(path);
@@ -297,11 +310,11 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Removes the directory seperator character from the 
+        /// Removes the directory separator character from the 
         /// end of the path, if it exists.
         /// </summary>
         /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
-        public static string RemoveTrailingSeperator(string path)
+        public static string RemoveTrailingSeparator(string path)
         {
             if (path == null) throw new ArgumentNullException("path");
             path = RemoveTrailingWhitespace(path);
@@ -309,16 +322,16 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Removes leading and trailing seperators from the path.
+        /// Removes leading and trailing separators from the path.
         /// </summary>
         /// <exception cref="System.ArgumentNullException">Thrown if path is null.</exception>
-        public static string RemoveLeadingAndTrailingSeperators(string path)
+        public static string RemoveLeadingAndTrailingSeparators(string path)
         {
-            return RemoveLeadingSeperator(RemoveTrailingSeperator(path));
+            return RemoveLeadingSeparator(RemoveTrailingSeparator(path));
         }
 
         /// <summary>
-        /// Removes the directory seperator from the beginning of the path 
+        /// Removes the directory separator from the beginning of the path 
         /// and adds one to the end of the path.
         /// </summary>
         /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
@@ -326,7 +339,7 @@ namespace EzUtilities
         public static string MakeRelativeDirectoryPath(string path)
         {
             if (IsPathAbsolute(path)) throw new ArgumentException("Path cannot be absolute");
-            return AppendSeperator(RemoveLeadingSeperator(path));
+            return AppendSeparator(RemoveLeadingSeparator(path));
         }
 
         /// <summary>
@@ -345,10 +358,10 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Converts all alternate directory seperators to normal directory seperators.
+        /// Converts all alternate directory separators to normal directory separators.
         /// </summary>
         /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
-        public static string NormalizeSeperators(string path)
+        public static string NormalizeSeparators(string path)
         {
             if (path == null) throw new ArgumentNullException("path");
             return path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
