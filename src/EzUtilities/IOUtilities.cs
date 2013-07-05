@@ -10,6 +10,13 @@ namespace EzUtilities
     public static class IOUtilities
     {
         /// <summary>
+        /// Characters considered as whitespace that can be 
+        /// safely removed from the ends of paths.
+        /// </summary>
+        private static readonly char[] WhitespaceChars =
+        { ' ', '\t', '\n', '\v', '\f', '\r', '\x0085' };
+
+        /// <summary>
         /// Creates a directory, doing nothing if the directory already exists.
         /// </summary>
         /// 
@@ -218,7 +225,7 @@ namespace EzUtilities
         public static string RemoveLeadingWhitespace(string path)
         {
             if (path == null) throw new ArgumentNullException("path");
-            return path.TrimStart(' ', '\t', '\n', '\v', '\f', '\r', '\x0085');
+            return path.TrimStart(WhitespaceChars);
         }
 
         /// <summary>
@@ -228,7 +235,16 @@ namespace EzUtilities
         public static string RemoveTrailingWhitespace(string path)
         {
             if (path == null) throw new ArgumentNullException("path");
-            return path.TrimEnd(' ', '\t', '\n', '\v', '\f', '\r', '\x0085');
+            return path.TrimEnd(WhitespaceChars);
+        }
+
+        /// <summary>
+        /// Removes all whitespace from the beginning and end of the path.
+        /// </summary>
+        /// <exception cref="System.ArgumentNullException">Thrown if path is null.</exception>
+        public static string RemoveLeadingAndTrailingWhitespace(string path)
+        {
+            return RemoveLeadingWhitespace(RemoveTrailingWhitespace(path));
         }
 
         /// <summary>
@@ -276,6 +292,7 @@ namespace EzUtilities
         public static string RemoveLeadingSeperator(string path)
         {
             if (IsPathAbsolute(path)) throw new ArgumentException("Path is not relative");
+            path = RemoveLeadingWhitespace(path);
             return path.TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
         }
 
@@ -289,6 +306,15 @@ namespace EzUtilities
             if (path == null) throw new ArgumentNullException("path");
             path = RemoveTrailingWhitespace(path);
             return path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+        }
+
+        /// <summary>
+        /// Removes leading and trailing seperators from the path.
+        /// </summary>
+        /// <exception cref="System.ArgumentNullException">Thrown if path is null.</exception>
+        public static string RemoveLeadingAndTrailingSeperators(string path)
+        {
+            return RemoveLeadingSeperator(RemoveTrailingSeperator(path));
         }
 
         /// <summary>
@@ -316,6 +342,16 @@ namespace EzUtilities
             if (path[0] == Path.DirectorySeparatorChar) return false;
             if (path[0] == Path.AltDirectorySeparatorChar) return false;
             return path[1] == Path.VolumeSeparatorChar;
+        }
+
+        /// <summary>
+        /// Converts all alternate directory seperators to normal directory seperators.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
+        public static string NormalizeSeperators(string path)
+        {
+            if (path == null) throw new ArgumentNullException("path");
+            return path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
         }
 
         /// <summary>
