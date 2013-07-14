@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace EzUtilities
 {
@@ -8,6 +9,24 @@ namespace EzUtilities
     public static class ArrayUtilities
     {
         /// <summary>
+        /// Copies the contents of the collection into a new array.
+        /// </summary>
+        /// 
+        /// <typeparam name="T">The collection type.</typeparam>
+        /// <param name="collection">The collection to copy.</param>
+        /// 
+        /// <returns>The copied array.</returns>
+        /// 
+        /// <exception cref="ArgumentNullException">Thrown if the collection is null.</exception>
+        public static T[] Copy<T>(this ICollection<T> collection)
+        {
+            if (collection == null) throw new ArgumentNullException("collection");
+            T[] copy = new T[collection.Count];
+            collection.CopyTo(copy, 0);
+            return copy;
+        }
+
+        /// <summary>
         /// Copies the contents of the array into a new array.
         /// </summary>
         /// 
@@ -15,8 +34,11 @@ namespace EzUtilities
         /// <param name="array">The array to copy.</param>
         /// 
         /// <returns>The copied array.</returns>
+        /// 
+        /// <exception cref="ArgumentNullException">Thrown if the array is null.</exception>
         public static T[] Copy<T>(this T[] array)
         {
+            if (array == null) throw new ArgumentNullException("array");
             int length = array.Length;
             T[] copy = new T[length];
             Array.Copy(array, copy, length);
@@ -31,8 +53,11 @@ namespace EzUtilities
         /// <param name="array">The array to copy.</param>
         /// 
         /// <returns>The copied array.</returns>
+        /// 
+        /// <exception cref="ArgumentNullException">Thrown if the array is null.</exception>
         public static T[,] Copy<T>(this T[,] array)
         {
+            if (array == null) throw new ArgumentNullException("array");
             int xLength = array.GetLength(0);
             int yLength = array.GetLength(1);
             T[,] copy = new T[xLength, yLength];
@@ -47,8 +72,12 @@ namespace EzUtilities
         /// <param name="array">The array to resize.</param>
         /// 
         /// <returns>The resized array.</returns>
+        /// 
+        /// <exception cref="ArgumentNullException">Thrown if array is null.</exception>
         public static T[] TrimFromStart<T>(this T[] array) where T : class
         {
+            if (array == null) throw new ArgumentNullException("array");
+
             int indexOfFirstNull;
             for (indexOfFirstNull = 0; indexOfFirstNull < array.Length; ++indexOfFirstNull)
             {
@@ -68,8 +97,12 @@ namespace EzUtilities
         /// <param name="array">The array to resize.</param>
         /// 
         /// <returns>The resized array.</returns>
+        /// 
+        /// <exception cref="ArgumentNullException">Thrown if array is null.</exception>
         public static T[] TrimFromEnd<T>(this T[] array) where T : class
         {
+            if (array == null) throw new ArgumentNullException("array");
+
             int indexOfFirstValue;
             for (indexOfFirstValue = array.Length - 1; indexOfFirstValue >= 0; --indexOfFirstValue)
             {
@@ -91,8 +124,12 @@ namespace EzUtilities
         /// <param name="array">The array to remove null values from.</param>
         /// 
         /// <returns>The array with null values removed.</returns>
+        /// 
+        /// <exception cref="ArgumentNullException">Thrown if array is null.</exception>
         public static T[] RemoveNulls<T>(this T[] array) where T : class
         {
+            if (array == null) throw new ArgumentNullException("array");
+
             int nullsRemoved = 0;
             int length = array.Length;
             T[] copy = new T[length];

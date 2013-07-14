@@ -177,13 +177,9 @@ namespace EzUtilities
         public static Image[] ToFrames(this Image img, out MemoryStream[] streams)
         {
             Guid[] dimensions = img.FrameDimensionsList;
-            if (dimensions.Length < 1)
+            if (dimensions.Length != 1)
             {
-                throw new ArgumentException("Image has no frame dimensions");
-            }
-            if (dimensions.Length > 1)
-            {
-                throw new ArgumentException("Image has more than one frame dimension");
+                throw new ArgumentException("Image does not have exactly one frame dimension");
             }
 
             FrameDimension dimension = new FrameDimension(dimensions[0]);
