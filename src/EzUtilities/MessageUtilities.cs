@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace EzUtilities
@@ -49,12 +50,43 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Writes a message to the debug output window.
+        /// Writes the contents of an array to the debug output window, 
+        /// using a comma and space (", ") as the delimiter.
         /// </summary>
-        /// <param name="msg">The message to print.</param>
-        public static void Print(object msg)
+        /// <param name="array">The array to print.</param>
+        public static void DebugPrintArray<T>(params T[] array)
         {
-            Debug.Print(msg.ToString());
+            DebugPrintArray(", ", array);
+        }
+
+        /// <summary>
+        /// Writes the contents of an array to the debug output window.
+        /// </summary>
+        /// <param name="separator">The separator between items in the array.</param>
+        /// <param name="array">The array to print.</param>
+        public static void DebugPrintArray<T>(string separator, params T[] array)
+        {
+            Debug.WriteLine(string.Join(separator, array));
+        }
+
+        /// <summary>
+        /// Writes the contents of an array to the console window, 
+        /// using a comma and space (", ") as the delimiter.
+        /// </summary>
+        /// <param name="array">The array to print.</param>
+        public static void ConsolePrintArray<T>(params T[] array)
+        {
+            ConsolePrintArray(", ", array);
+        }
+
+        /// <summary>
+        /// Writes the contents of an array to the console window.
+        /// </summary>
+        /// <param name="separator">The separator between items in the array.</param>
+        /// <param name="array">The array to print.</param>
+        public static void ConsolePrintArray<T>(string separator, params T[] array)
+        {
+            Console.WriteLine(string.Join(separator, array));
         }
     }
 }

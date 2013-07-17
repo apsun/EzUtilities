@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 
 namespace EzUtilities
 {
@@ -9,20 +9,52 @@ namespace EzUtilities
     public static class ArrayUtilities
     {
         /// <summary>
-        /// Copies the contents of the collection into a new array.
+        /// Performs an insertion sort on an array.
         /// </summary>
+        /// <param name="array">The array to sort.</param>
         /// 
-        /// <typeparam name="T">The collection type.</typeparam>
-        /// <param name="collection">The collection to copy.</param>
-        /// 
-        /// <returns>The copied array.</returns>
-        /// 
-        /// <exception cref="ArgumentNullException">Thrown if the collection is null.</exception>
-        public static T[] Copy<T>(this ICollection<T> collection)
+        /// <exception cref="ArgumentNullException">Thrown if the array is null.</exception>
+        public static void InsertionSort<T>(this T[] array) where T : IComparable<T>
         {
-            if (collection == null) throw new ArgumentNullException("collection");
-            T[] copy = new T[collection.Count];
-            collection.CopyTo(copy, 0);
+            if (array == null) throw new ArgumentNullException("array");
+
+            for (int i = 1; i < array.Length; ++i)
+            {
+                T item = array[i];
+                int j = i;
+                while (j > 0 && (array[j - 1].CompareTo(item) != 1))
+                {
+                    array[j] = array[j - 1];
+                    --j;
+                }
+                array[j] = item;
+            }
+        }
+
+        /// <summary>
+        /// Sorts the array in-place.
+        /// </summary>
+        /// <param name="array">The array to sort.</param>
+        /// <typeparam name="T">The type of the values in the array.</typeparam>
+        /// <exception cref="System.ArgumentNullException">Thrown if the array is null.</exception>
+        /// <exception cref="System.InvalidOperationException">One or more elements in array do not implement the <see cref="T:System.IComparable`1" /> generic interface.</exception>
+        public static void Sort<T>(this T[] array)
+        {
+            Array.Sort(array);
+        }
+
+        /// <summary>
+        /// Creates a sorted copy of the array.
+        /// </summary>
+        /// <param name="array">The array to sort.</param>
+        /// <typeparam name="T">The type of the values in the array.</typeparam>
+        /// <exception cref="System.ArgumentNullException">Thrown if the array is null.</exception>
+        /// <exception cref="System.InvalidOperationException">One or more elements in array do not implement the <see cref="T:System.IComparable`1" /> generic interface.</exception>
+        [Pure]
+        public static T[] SortCopy<T>(this T[] array)
+        {
+            T[] copy = array.Copy();
+            Array.Sort(copy);
             return copy;
         }
 
@@ -36,6 +68,7 @@ namespace EzUtilities
         /// <returns>The copied array.</returns>
         /// 
         /// <exception cref="ArgumentNullException">Thrown if the array is null.</exception>
+        [Pure]
         public static T[] Copy<T>(this T[] array)
         {
             if (array == null) throw new ArgumentNullException("array");
@@ -55,6 +88,7 @@ namespace EzUtilities
         /// <returns>The copied array.</returns>
         /// 
         /// <exception cref="ArgumentNullException">Thrown if the array is null.</exception>
+        [Pure]
         public static T[,] Copy<T>(this T[,] array)
         {
             if (array == null) throw new ArgumentNullException("array");
@@ -74,7 +108,8 @@ namespace EzUtilities
         /// <returns>The resized array.</returns>
         /// 
         /// <exception cref="ArgumentNullException">Thrown if array is null.</exception>
-        public static T[] TrimFromStart<T>(this T[] array) where T : class
+        [Pure]
+        public static T[] TrimNullsFromStart<T>(this T[] array) where T : class
         {
             if (array == null) throw new ArgumentNullException("array");
 
@@ -99,7 +134,8 @@ namespace EzUtilities
         /// <returns>The resized array.</returns>
         /// 
         /// <exception cref="ArgumentNullException">Thrown if array is null.</exception>
-        public static T[] TrimFromEnd<T>(this T[] array) where T : class
+        [Pure]
+        public static T[] TrimNullsFromEnd<T>(this T[] array) where T : class
         {
             if (array == null) throw new ArgumentNullException("array");
 
@@ -126,6 +162,7 @@ namespace EzUtilities
         /// <returns>The array with null values removed.</returns>
         /// 
         /// <exception cref="ArgumentNullException">Thrown if array is null.</exception>
+        [Pure]
         public static T[] RemoveNulls<T>(this T[] array) where T : class
         {
             if (array == null) throw new ArgumentNullException("array");
