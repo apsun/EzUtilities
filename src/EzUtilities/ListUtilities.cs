@@ -342,7 +342,7 @@ namespace EzUtilities
         /// <exception cref="System.IndexOutOfRangeException">Source index does not exist in the list.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">Target index is not a valid index in the <see cref="T:System.Collections.Generic.IList`1" />.</exception>
         /// <exception cref="System.NotSupportedException">The <see cref="T:System.Collections.Generic.IList`1" /> is read-only.</exception>
-        public static void RearrangeIndex<T>(this IList<T> list, int originalIndex, int targetIndex)
+        public static void RearrangeIndex<T>(this IList<T> list, int targetIndex, int originalIndex)
         {
             if (list == null) throw new ArgumentNullException("list");
 
@@ -660,7 +660,7 @@ namespace EzUtilities.NonGeneric
         /// <exception cref="System.InvalidOperationException">Thrown if the item was not found in the list.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">Target index is not a valid index in the <see cref="T:System.Collections.Generic.IList`1" />.</exception>
         /// <exception cref="System.NotSupportedException">The <see cref="T:System.Collections.Generic.IList`1" /> is read-only.</exception>
-        public static void Rearrange(this IList list, object item, int targetIndex)
+        public static void Rearrange(this IList list, int targetIndex, object item)
         {
             if (list == null) throw new ArgumentNullException("list");
 
@@ -697,7 +697,7 @@ namespace EzUtilities.NonGeneric
         /// <exception cref="System.IndexOutOfRangeException">Source index does not exist in the list.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">Target index is not a valid index in the <see cref="T:System.Collections.Generic.IList`1" />.</exception>
         /// <exception cref="System.NotSupportedException">The <see cref="T:System.Collections.Generic.IList`1" /> is read-only.</exception>
-        public static void RearrangeIndex(this IList list, int originalIndex, int targetIndex)
+        public static void RearrangeIndex(this IList list, int targetIndex, int originalIndex)
         {
             if (list == null) throw new ArgumentNullException("list");
 

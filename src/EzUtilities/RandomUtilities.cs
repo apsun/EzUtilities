@@ -33,7 +33,7 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Gets a pseudo-random integer less than the specified maximum.
+        /// Gets a pseudo-random non-negative integer less than the specified maximum.
         /// </summary>
         /// <param name="upperBound">The exclusive maximum value.</param>
         /// <returns>The generated random value.</returns>
