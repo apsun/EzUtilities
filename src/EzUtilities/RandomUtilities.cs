@@ -11,15 +11,25 @@ namespace EzUtilities
         private static readonly Random Rnd = new Random();
 
         /// <summary>
-        /// Gets a pseudo-random color with the specified alpha value.
+        /// Gets a random color with opacity set to 255 (fully opaque).
+        /// </summary>
+        /// 
+        /// <returns>An instance of <see cref="System.Drawing.Color"/> with random RGB values.</returns>
+        public static Color ArgbColor()
+        {
+            return Color.FromArgb(Rnd.Next(256), Rnd.Next(256), Rnd.Next(256));
+        }
+
+        /// <summary>
+        /// Gets a random color with the specified alpha value.
         /// </summary>
         /// 
         /// <param name="alpha">The alpha of the color.</param>
         /// 
         /// <returns>An instance of <see cref="System.Drawing.Color"/> with random RGB values.</returns>
-        public static Color GetRandomColor(int alpha)
+        public static Color ArgbColor(int alpha)
         {
-            return Color.FromArgb(Rnd.Next(256), Rnd.Next(256), Rnd.Next(256), alpha);
+            return Color.FromArgb(alpha, Rnd.Next(256), Rnd.Next(256), Rnd.Next(256));
         }
 
         /// <summary>
@@ -27,7 +37,7 @@ namespace EzUtilities
         /// </summary>
         /// <param name="upperBound">The exclusive maximum value.</param>
         /// <returns>The generated random value.</returns>
-        public static int GetRandomInteger(int upperBound)
+        public static int Integer(int upperBound)
         {
             return Rnd.Next(upperBound);
         }
@@ -44,7 +54,7 @@ namespace EzUtilities
         /// <exception cref="System.ArgumentOutOfRangeException">
         /// Thrown if lowerBound is greater than upperBound.
         /// </exception>
-        public static int GetRandomInteger(int lowerBound, int upperBound)
+        public static int Integer(int lowerBound, int upperBound)
         {
             return Rnd.Next(lowerBound, upperBound);
         }
@@ -57,7 +67,7 @@ namespace EzUtilities
         /// <param name="upperBound">The exclusive upper bound of the number returned.</param>
         /// 
         /// <returns>The generated random value.</returns>
-        public static double GetRandomDouble(double lowerBound, double upperBound)
+        public static double Double(double lowerBound, double upperBound)
         {
             return Rnd.NextDouble() * (upperBound - lowerBound) + lowerBound;
         }
@@ -70,7 +80,7 @@ namespace EzUtilities
         /// <param name="upperBound">The exclusive upper bound of the number returned.</param>
         /// 
         /// <returns>The generated random value.</returns>
-        public static float GetRandomFloat(float lowerBound, float upperBound)
+        public static float Single(float lowerBound, float upperBound)
         {
             return (float)Rnd.NextDouble() * (upperBound - lowerBound) + lowerBound;
         }
@@ -82,7 +92,7 @@ namespace EzUtilities
         /// <param name="probability">The probability of getting true (0-100).</param>
         /// 
         /// <returns>True or false, depending on the outcome of the roll.</returns>
-        public static bool GetBinaryOutcome(int probability)
+        public static bool BinaryOutcome(int probability)
         {
             return probability > Rnd.Next(100);
         }
@@ -94,7 +104,7 @@ namespace EzUtilities
         /// <param name="probability">The probability of getting true (0-1).</param>
         /// 
         /// <returns>True or false, depending on the outcome of the roll.</returns>
-        public static bool GetBinaryOutcome(double probability)
+        public static bool BinaryOutcome(double probability)
         {
             return probability > Rnd.NextDouble();
         }
@@ -112,7 +122,7 @@ namespace EzUtilities
         /// <exception cref="ArgumentOutOfRangeException">
         /// Thrown if count is negative or greater than the number of items in the array.
         /// </exception>
-        public static T[] GetRandomPermutation<T>(int count, params T[] array)
+        public static T[] Permutation<T>(int count, params T[] array)
         {
             if (count < 0 || count > array.Length) throw new ArgumentOutOfRangeException("count");
 
