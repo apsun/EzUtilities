@@ -315,11 +315,11 @@ namespace EzUtilities
 
             if (targetIndex > originalIndex)
             {
+                --targetIndex;
                 for (int i = originalIndex; i < targetIndex; ++i)
                 {
                     list[i] = list[i + 1];
                 }
-                --targetIndex;
             }
             else
             {
@@ -352,11 +352,11 @@ namespace EzUtilities
 
             if (targetIndex > originalIndex)
             {
+                --targetIndex;
                 for (int i = originalIndex; i < targetIndex; ++i)
                 {
                     list[i] = list[i + 1];
                 }
-                --targetIndex;
             }
             else
             {
@@ -673,11 +673,11 @@ namespace EzUtilities.NonGeneric
 
             if (targetIndex > originalIndex)
             {
+                --targetIndex;
                 for (int i = originalIndex; i < targetIndex; ++i)
                 {
                     list[i] = list[i + 1];
                 }
-                --targetIndex;
             }
             else
             {
@@ -709,11 +709,11 @@ namespace EzUtilities.NonGeneric
 
             if (targetIndex > originalIndex)
             {
+                --targetIndex;
                 for (int i = originalIndex; i < targetIndex; ++i)
                 {
                     list[i] = list[i + 1];
                 }
-                --targetIndex;
             }
             else
             {
