@@ -319,6 +319,7 @@ namespace EzUtilities
                 {
                     list[i] = list[i + 1];
                 }
+                --targetIndex;
             }
             else
             {
@@ -355,6 +356,7 @@ namespace EzUtilities
                 {
                     list[i] = list[i + 1];
                 }
+                --targetIndex;
             }
             else
             {
@@ -675,6 +677,7 @@ namespace EzUtilities.NonGeneric
                 {
                     list[i] = list[i + 1];
                 }
+                --targetIndex;
             }
             else
             {
@@ -710,6 +713,7 @@ namespace EzUtilities.NonGeneric
                 {
                     list[i] = list[i + 1];
                 }
+                --targetIndex;
             }
             else
             {
