@@ -11,22 +11,22 @@ namespace EzUtilities
     public static class ListUtilities
     {
         /// <summary>
-        /// Gets the indicies corresponding to the items in a list. 
+        /// Gets the indices corresponding to the items in a list. 
         /// Returns -1 for the index if the item was not found.
         /// </summary>
         /// <param name="list">The list to search.</param>
         /// <param name="items">The items to find.</param>
         /// <typeparam name="T">The type of items in the list.</typeparam>
-        /// <returns>The indicies of the items within the list.</returns>
+        /// <returns>The indices of the items within the list.</returns>
         /// <exception cref="ArgumentException">Thrown if items contains duplicates.</exception>
         /// <exception cref="ArgumentNullException">Thrown if the list or the items are null.</exception>
-        public static int[] GetIndicies<T>(this IList<T> list, params T[] items)
+        public static int[] GetIndices<T>(this IList<T> list, params T[] items)
         {
             if (list == null) throw new ArgumentNullException("list");
             if (items == null) throw new ArgumentNullException("items");
-            int[] indicies = new int[items.Length];
+            int[] indices = new int[items.Length];
             Comparer<T> comparer = Comparer<T>.Default;
-            for (int i = 0; i < indicies.Length; ++i)
+            for (int i = 0; i < indices.Length; ++i)
             {
                 for (int j = i + 1; j < items.Length; ++j)
                 {
@@ -37,9 +37,9 @@ namespace EzUtilities
                 }
 
                 int index = list.IndexOf(items[i]);
-                indicies[i] = index;
+                indices[i] = index;
             }
-            return indicies;
+            return indices;
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace EzUtilities
             if (items.IsNullOrEmpty()) return;
 
             int newTargetIndex = targetIndex;
-            int[] selectedIndicies = new int[items.Length];
+            int[] selectedIndices = new int[items.Length];
 
             Comparer<T> comparer = Comparer<T>.Default;
             for (int i = 0; i < items.Length; ++i)
@@ -152,7 +152,7 @@ namespace EzUtilities
                 int indexInList = list.IndexOf(item);
                 if (indexInList == -1)
                     throw new InvalidOperationException("One or more items were not found in the list");
-                selectedIndicies[i] = indexInList;
+                selectedIndices[i] = indexInList;
                 if (indexInList < targetIndex)
                 {
                     --newTargetIndex;
@@ -162,12 +162,12 @@ namespace EzUtilities
             //Sort for better performance on the two steps. 
             //First, it makes getting the maximum and minimum easier. 
             //Second, it allows branch prediction to speed up the foreach loop below.
-            selectedIndicies.Sort();
+            selectedIndices.Sort();
 
-            //Get the minimum and maximum original indicies of the rearranged items. 
+            //Get the minimum and maximum original indices of the rearranged items. 
             //This marks the region that will be modified.
-            int minOriginalIndex = selectedIndicies[0];
-            int maxOriginalIndex = selectedIndicies[selectedIndicies.Length - 1];
+            int minOriginalIndex = selectedIndices[0];
+            int maxOriginalIndex = selectedIndices[selectedIndices.Length - 1];
 
             //Get the amount of selected items on the left and on the right. 
             //We use this to determine the amount of items that need to be shifted. 
@@ -175,7 +175,7 @@ namespace EzUtilities
             //than incrementing one number and subtracting it from the length.
             int leftSelected = 0;
             int rightSelected = 0;
-            foreach (int itemIndex in selectedIndicies)
+            foreach (int itemIndex in selectedIndices)
             {
                 if (itemIndex < targetIndex)
                 {
@@ -204,7 +204,7 @@ namespace EzUtilities
             int shiftedItemIndex = minOriginalIndex;
             for (int i = minOriginalIndex; i < minOriginalIndex + leftShiftCount; ++i)
             {
-                do { } while (selectedIndicies.Contains(++shiftedItemIndex));
+                do { } while (selectedIndices.Contains(++shiftedItemIndex));
                 list[i] = list[shiftedItemIndex];
             }
 
@@ -212,7 +212,7 @@ namespace EzUtilities
             shiftedItemIndex = maxOriginalIndex;
             for (int i = maxOriginalIndex; i > maxOriginalIndex - rightShiftCount; --i)
             {
-                do { } while (selectedIndicies.Contains(--shiftedItemIndex));
+                do { } while (selectedIndices.Contains(--shiftedItemIndex));
                 list[i] = list[shiftedItemIndex];
             }
 
@@ -229,12 +229,12 @@ namespace EzUtilities
         /// <typeparam name="T">The type of items in the list.</typeparam>
         /// <param name="list">The list to rearrange.</param>
         /// <param name="targetIndex">The index to insert the rearranged items at.</param>
-        /// <param name="originalIndicies">The indicies of the items to rearrange within the list.</param>
+        /// <param name="originalIndices">The indices of the items to rearrange within the list.</param>
         /// <exception cref="ArgumentNullException">Thrown if the list is null.</exception>
         /// <exception cref="InvalidOperationException">Thrown if an item was not found in the list or if the list is read-only.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if the target or source indicies are out of range.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if the target or source indices are out of range.</exception>
         /// <exception cref="ArgumentException">Thrown if there are duplicate values in the selected items.</exception>
-        public static void RearrangeIndex<T>(this IList<T> list, int targetIndex, params int[] originalIndicies)
+        public static void RearrangeIndex<T>(this IList<T> list, int targetIndex, params int[] originalIndices)
         {
             if (list == null)
                 throw new ArgumentNullException("list");
@@ -242,22 +242,22 @@ namespace EzUtilities
             if (targetIndex < 0 || targetIndex > list.Count)
                 throw new ArgumentOutOfRangeException("targetIndex");
 
-            if (originalIndicies.IsNullOrEmpty()) return;
+            if (originalIndices.IsNullOrEmpty()) return;
 
             int newTargetIndex = targetIndex;
-            T[] items = new T[originalIndicies.Length];
+            T[] items = new T[originalIndices.Length];
 
-            for (int i = 0; i < originalIndicies.Length; ++i)
+            for (int i = 0; i < originalIndices.Length; ++i)
             {
-                int indexInList = originalIndicies[i];
+                int indexInList = originalIndices[i];
 
                 if (!list.IsValidIndex(indexInList))
-                    throw new ArgumentOutOfRangeException("originalIndicies", "One or more indicies are out of range");
+                    throw new ArgumentOutOfRangeException("originalIndices", "One or more indices are out of range");
 
-                for (int j = i + 1; j < originalIndicies.Length; ++j)
+                for (int j = i + 1; j < originalIndices.Length; ++j)
                 {
-                    if (indexInList == originalIndicies[j])
-                        throw new ArgumentException("Selected indicies contains duplicates", "originalIndicies");
+                    if (indexInList == originalIndices[j])
+                        throw new ArgumentException("Selected indices contains duplicates", "originalIndices");
                 }
 
                 T item = list[indexInList];
@@ -271,12 +271,12 @@ namespace EzUtilities
             //Sort for better performance on the two steps. 
             //First, it makes getting the maximum and minimum easier. 
             //Second, it allows branch prediction to speed up the foreach loop below.
-            int[] selectedIndicies = originalIndicies.SortCopy();
+            int[] selectedIndices = originalIndices.SortCopy();
 
-            //Get the minimum and maximum original indicies of the rearranged items. 
+            //Get the minimum and maximum original indices of the rearranged items. 
             //This marks the region that will be modified.
-            int minOriginalIndex = selectedIndicies[0];
-            int maxOriginalIndex = selectedIndicies[selectedIndicies.Length - 1];
+            int minOriginalIndex = selectedIndices[0];
+            int maxOriginalIndex = selectedIndices[selectedIndices.Length - 1];
 
             //Get the amount of selected items on the left and on the right. 
             //We use this to determine the amount of items that need to be shifted. 
@@ -284,7 +284,7 @@ namespace EzUtilities
             //than incrementing one number and subtracting it from the length.
             int leftSelected = 0;
             int rightSelected = 0;
-            foreach (int itemIndex in selectedIndicies)
+            foreach (int itemIndex in selectedIndices)
             {
                 if (itemIndex < targetIndex)
                 {
@@ -313,7 +313,7 @@ namespace EzUtilities
             int shiftedItemIndex = minOriginalIndex;
             for (int i = minOriginalIndex; i < minOriginalIndex + leftShiftCount; ++i)
             {
-                do { } while (selectedIndicies.Contains(++shiftedItemIndex));
+                do { } while (selectedIndices.Contains(++shiftedItemIndex));
                 list[i] = list[shiftedItemIndex];
             }
 
@@ -321,7 +321,7 @@ namespace EzUtilities
             shiftedItemIndex = maxOriginalIndex;
             for (int i = maxOriginalIndex; i > maxOriginalIndex - rightShiftCount; --i)
             {
-                do { } while (selectedIndicies.Contains(--shiftedItemIndex));
+                do { } while (selectedIndices.Contains(--shiftedItemIndex));
                 list[i] = list[shiftedItemIndex];
             }
 
@@ -423,8 +423,8 @@ namespace EzUtilities
         {
             if (items.IsNullOrEmpty()) return true;
 
-            //GetIndicies already checks for duplicates and null list.
-            int[] reverseInd = list.GetIndicies(items).ReverseSortCopy();
+            //GetIndices already checks for duplicates and null list.
+            int[] reverseInd = list.GetIndices(items).ReverseSortCopy();
 
             bool allRemoved = true;
             foreach (int i in reverseInd)
@@ -440,22 +440,22 @@ namespace EzUtilities
         /// Removes multiple items from a list.
         /// </summary>
         /// <param name="list">The list to remove items from.</param>
-        /// <param name="indicies">The indicies of the items to remove.</param>
+        /// <param name="indices">The indices of the items to remove.</param>
         /// <typeparam name="T">The type of items in the list.</typeparam>
-        /// <exception cref="ArgumentException">Thrown if indicies contains duplicates.</exception>
+        /// <exception cref="ArgumentException">Thrown if indices contains duplicates.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">index is not a valid index in the <see cref="T:System.Collections.Generic.IList`1" />.</exception>
         /// <exception cref="System.NotSupportedException">The <see cref="T:System.Collections.Generic.IList`1" /> is read-only.</exception>
-        public static void RemoveAt<T>(this IList<T> list, params int[] indicies)
+        public static void RemoveAt<T>(this IList<T> list, params int[] indices)
         {
-            if (indicies.IsNullOrEmpty()) return;
+            if (indices.IsNullOrEmpty()) return;
 
-            int[] reverseInd = indicies.ReverseSortCopy();
+            int[] reverseInd = indices.ReverseSortCopy();
 
             //Only need to check the minimum index. 
             //The largest index will be checked in the loop below anyways.
-            if (indicies[indicies.Length - 1] < 0)
+            if (indices[indices.Length - 1] < 0)
             {
-                throw new ArgumentOutOfRangeException("indicies", "One or more indicies are out of range");
+                throw new ArgumentOutOfRangeException("indices", "One or more indices are out of range");
             }
 
             for (int i = 0; i < reverseInd.Length; i++)
@@ -465,7 +465,7 @@ namespace EzUtilities
                 //Only need to check the next item since the list is sorted
                 if (i < reverseInd.Length - 1 && reverseInd[i + 1] == index)
                 {
-                    throw new ArgumentException("Indicies cannot contain duplicates", "indicies");
+                    throw new ArgumentException("Indices cannot contain duplicates", "indices");
                 }
 
                 list.RemoveAt(index);
@@ -499,21 +499,21 @@ namespace EzUtilities.NonGeneric
     public static class ListUtilities
     {
         /// <summary>
-        /// Gets the indicies corresponding to the items in a list. 
+        /// Gets the indices corresponding to the items in a list. 
         /// Throws an exception if an item was not found.
         /// </summary>
         /// <param name="list">The list to search.</param>
         /// <param name="items">The items to find.</param>
-        /// <returns>The indicies of the items within the list.</returns>
+        /// <returns>The indices of the items within the list.</returns>
         /// <exception cref="ArgumentException">Thrown if items contains duplicates.</exception>
         /// <exception cref="ArgumentNullException">Thrown if the list or the items are null.</exception>
-        public static int[] GetIndicies(this IList list, params object[] items)
+        public static int[] GetIndices(this IList list, params object[] items)
         {
             if (list == null) throw new ArgumentNullException("list");
             if (items == null) throw new ArgumentNullException("items");
-            int[] indicies = new int[items.Length];
+            int[] indices = new int[items.Length];
             Comparer comparer = Comparer.Default;
-            for (int i = 0; i < indicies.Length; ++i)
+            for (int i = 0; i < indices.Length; ++i)
             {
                 for (int j = i + 1; j < items.Length; ++j)
                 {
@@ -524,9 +524,9 @@ namespace EzUtilities.NonGeneric
                 }
 
                 int index = list.IndexOf(items[i]);
-                indicies[i] = index;
+                indices[i] = index;
             }
-            return indicies;
+            return indices;
         }
 
         /// <summary>
@@ -597,7 +597,7 @@ namespace EzUtilities.NonGeneric
             if (items.IsNullOrEmpty()) return;
 
             int newTargetIndex = targetIndex;
-            int[] selectedIndicies = new int[items.Length];
+            int[] selectedIndices = new int[items.Length];
 
             Comparer comparer = Comparer.Default;
             for (int i = 0; i < items.Length; ++i)
@@ -614,7 +614,7 @@ namespace EzUtilities.NonGeneric
                 if (indexInList == -1)
                     throw new InvalidOperationException("One or more items were not found in the list");
 
-                selectedIndicies[i] = indexInList;
+                selectedIndices[i] = indexInList;
                 if (indexInList < targetIndex)
                 {
                     --newTargetIndex;
@@ -624,12 +624,12 @@ namespace EzUtilities.NonGeneric
             //Sort for better performance on the two steps. 
             //First, it makes getting the maximum and minimum easier. 
             //Second, it allows branch prediction to speed up the foreach loop below.
-            selectedIndicies.Sort();
+            selectedIndices.Sort();
 
-            //Get the minimum and maximum original indicies of the rearranged items. 
+            //Get the minimum and maximum original indices of the rearranged items. 
             //This marks the region that will be modified.
-            int minOriginalIndex = selectedIndicies[0];
-            int maxOriginalIndex = selectedIndicies[selectedIndicies.Length - 1];
+            int minOriginalIndex = selectedIndices[0];
+            int maxOriginalIndex = selectedIndices[selectedIndices.Length - 1];
 
             //Get the amount of selected items on the left and on the right. 
             //We use this to determine the amount of items that need to be shifted. 
@@ -637,7 +637,7 @@ namespace EzUtilities.NonGeneric
             //than incrementing one number and subtracting it from the length.
             int leftSelected = 0;
             int rightSelected = 0;
-            foreach (int itemIndex in selectedIndicies)
+            foreach (int itemIndex in selectedIndices)
             {
                 if (itemIndex < targetIndex)
                 {
@@ -666,7 +666,7 @@ namespace EzUtilities.NonGeneric
             int shiftedItemIndex = minOriginalIndex;
             for (int i = minOriginalIndex; i < minOriginalIndex + leftShiftCount; ++i)
             {
-                do { } while (selectedIndicies.Contains(++shiftedItemIndex));
+                do { } while (selectedIndices.Contains(++shiftedItemIndex));
                 list[i] = list[shiftedItemIndex];
             }
 
@@ -674,7 +674,7 @@ namespace EzUtilities.NonGeneric
             shiftedItemIndex = maxOriginalIndex;
             for (int i = maxOriginalIndex; i > maxOriginalIndex - rightShiftCount; --i)
             {
-                do { } while (selectedIndicies.Contains(--shiftedItemIndex));
+                do { } while (selectedIndices.Contains(--shiftedItemIndex));
                 list[i] = list[shiftedItemIndex];
             }
 
@@ -690,12 +690,12 @@ namespace EzUtilities.NonGeneric
         /// </summary>
         /// <param name="list">The list to rearrange.</param>
         /// <param name="targetIndex">The index to insert the rearranged items at.</param>
-        /// <param name="originalIndicies">The indicies of the items to rearrange within the list.</param>
+        /// <param name="originalIndices">The indices of the items to rearrange within the list.</param>
         /// <exception cref="ArgumentNullException">Thrown if the list is null.</exception>
         /// <exception cref="InvalidOperationException">Thrown if an item was not found in the list or if the list is read-only.</exception>
-        /// <exception cref="ArgumentOutOfRangeException">Thrown if the target or source indicies are out of range.</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Thrown if the target or source indices are out of range.</exception>
         /// <exception cref="ArgumentException">Thrown if there are duplicate values in the selected items.</exception>
-        public static void RearrangeIndex(this IList list, int targetIndex, params int[] originalIndicies)
+        public static void RearrangeIndex(this IList list, int targetIndex, params int[] originalIndices)
         {
             if (list == null)
                 throw new ArgumentNullException("list");
@@ -703,22 +703,22 @@ namespace EzUtilities.NonGeneric
             if (targetIndex < 0 || targetIndex > list.Count)
                 throw new ArgumentOutOfRangeException("targetIndex");
 
-            if (originalIndicies.IsNullOrEmpty()) return;
+            if (originalIndices.IsNullOrEmpty()) return;
 
             int newTargetIndex = targetIndex;
-            object[] items = new object[originalIndicies.Length];
+            object[] items = new object[originalIndices.Length];
 
-            for (int i = 0; i < originalIndicies.Length; ++i)
+            for (int i = 0; i < originalIndices.Length; ++i)
             {
-                int indexInList = originalIndicies[i];
+                int indexInList = originalIndices[i];
 
                 if (!list.IsValidIndex(indexInList))
-                    throw new ArgumentOutOfRangeException("originalIndicies", "One or more indicies are out of range");
+                    throw new ArgumentOutOfRangeException("originalIndices", "One or more indices are out of range");
 
-                for (int j = i + 1; j < originalIndicies.Length; ++j)
+                for (int j = i + 1; j < originalIndices.Length; ++j)
                 {
-                    if (indexInList == originalIndicies[j])
-                        throw new ArgumentException("Selected indicies contains duplicates", "originalIndicies");
+                    if (indexInList == originalIndices[j])
+                        throw new ArgumentException("Selected indices contains duplicates", "originalIndices");
                 }
 
                 object item = list[indexInList];
@@ -732,12 +732,12 @@ namespace EzUtilities.NonGeneric
             //Sort for better performance on the two steps. 
             //First, it makes getting the maximum and minimum easier. 
             //Second, it allows branch prediction to speed up the foreach loop below.
-            int[] selectedIndicies = originalIndicies.SortCopy();
+            int[] selectedIndices = originalIndices.SortCopy();
 
-            //Get the minimum and maximum original indicies of the rearranged items. 
+            //Get the minimum and maximum original indices of the rearranged items. 
             //This marks the region that will be modified.
-            int minOriginalIndex = selectedIndicies[0];
-            int maxOriginalIndex = selectedIndicies[selectedIndicies.Length - 1];
+            int minOriginalIndex = selectedIndices[0];
+            int maxOriginalIndex = selectedIndices[selectedIndices.Length - 1];
 
             //Get the amount of selected items on the left and on the right. 
             //We use this to determine the amount of items that need to be shifted. 
@@ -745,7 +745,7 @@ namespace EzUtilities.NonGeneric
             //than incrementing one number and subtracting it from the length.
             int leftSelected = 0;
             int rightSelected = 0;
-            foreach (int itemIndex in selectedIndicies)
+            foreach (int itemIndex in selectedIndices)
             {
                 if (itemIndex < targetIndex)
                 {
@@ -774,7 +774,7 @@ namespace EzUtilities.NonGeneric
             int shiftedItemIndex = minOriginalIndex;
             for (int i = minOriginalIndex; i < minOriginalIndex + leftShiftCount; ++i)
             {
-                do { } while (selectedIndicies.Contains(++shiftedItemIndex));
+                do { } while (selectedIndices.Contains(++shiftedItemIndex));
                 list[i] = list[shiftedItemIndex];
             }
 
@@ -782,7 +782,7 @@ namespace EzUtilities.NonGeneric
             shiftedItemIndex = maxOriginalIndex;
             for (int i = maxOriginalIndex; i > maxOriginalIndex - rightShiftCount; --i)
             {
-                do { } while (selectedIndicies.Contains(--shiftedItemIndex));
+                do { } while (selectedIndices.Contains(--shiftedItemIndex));
                 list[i] = list[shiftedItemIndex];
             }
 
@@ -881,8 +881,8 @@ namespace EzUtilities.NonGeneric
         {
             if (items.IsNullOrEmpty()) return true;
 
-            //GetIndicies already checks for duplicates and null list.
-            int[] reverseInd = list.GetIndicies(items).ReverseSortCopy();
+            //GetIndices already checks for duplicates and null list.
+            int[] reverseInd = list.GetIndices(items).ReverseSortCopy();
 
             bool allRemoved = true;
             foreach (int i in reverseInd)
@@ -898,21 +898,21 @@ namespace EzUtilities.NonGeneric
         /// Removes multiple items from a list.
         /// </summary>
         /// <param name="list">The list to remove items from.</param>
-        /// <param name="indicies">The indicies of the items to remove.</param>
-        /// <exception cref="ArgumentException">Thrown if indicies contains duplicates.</exception>
+        /// <param name="indices">The indices of the items to remove.</param>
+        /// <exception cref="ArgumentException">Thrown if indices contains duplicates.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">index is not a valid index in the <see cref="T:System.Collections.Generic.IList`1" />.</exception>
         /// <exception cref="System.NotSupportedException">The <see cref="T:System.Collections.Generic.IList`1" /> is read-only.</exception>
-        public static void RemoveAt(this IList list, params int[] indicies)
+        public static void RemoveAt(this IList list, params int[] indices)
         {
-            if (indicies.IsNullOrEmpty()) return;
+            if (indices.IsNullOrEmpty()) return;
 
-            int[] reverseInd = indicies.ReverseSortCopy();
+            int[] reverseInd = indices.ReverseSortCopy();
 
             //Only need to check the minimum index. 
             //The largest index will be checked in the loop below anyways.
-            if (indicies[indicies.Length - 1] < 0)
+            if (indices[indices.Length - 1] < 0)
             {
-                throw new ArgumentOutOfRangeException("indicies", "One or more indicies are out of range");
+                throw new ArgumentOutOfRangeException("indices", "One or more indices are out of range");
             }
 
             for (int i = 0; i < reverseInd.Length; i++)
@@ -922,7 +922,7 @@ namespace EzUtilities.NonGeneric
                 //Only need to check the next item since the list is sorted
                 if (i < reverseInd.Length - 1 && reverseInd[i + 1] == index)
                 {
-                    throw new ArgumentException("Indicies cannot contain duplicates", "indicies");
+                    throw new ArgumentException("Indices cannot contain duplicates", "indices");
                 }
 
                 list.RemoveAt(index);
