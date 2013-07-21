@@ -37,10 +37,21 @@ namespace EzUtilities
         /// <param name="array">The array to sort.</param>
         /// <typeparam name="T">The type of the values in the array.</typeparam>
         /// <exception cref="System.ArgumentNullException">Thrown if the array is null.</exception>
-        /// <exception cref="System.InvalidOperationException">One or more elements in array do not implement the <see cref="T:System.IComparable`1" /> generic interface.</exception>
-        public static void Sort<T>(this T[] array)
+        public static void Sort<T>(this T[] array) where T : IComparable<T>
         {
             Array.Sort(array);
+        }
+
+        /// <summary>
+        /// Sorts an array in descending order.
+        /// </summary>
+        /// <param name="array">The array to sort.</param>
+        /// <typeparam name="T">The type of the values in the array.</typeparam>
+        /// <exception cref="System.ArgumentNullException">Thrown if the array is null.</exception>
+        /// <exception cref="System.ArgumentException">The implementation of comparison caused an error during the sort. For example, comparison might not return 0 when comparing an item with itself.</exception>
+        public static void ReverseSort<T>(this T[] array) where T : IComparable<T>
+        {
+            Array.Sort(array, (a, b) => b.CompareTo(a));
         }
 
         /// <summary>
@@ -49,12 +60,26 @@ namespace EzUtilities
         /// <param name="array">The array to sort.</param>
         /// <typeparam name="T">The type of the values in the array.</typeparam>
         /// <exception cref="System.ArgumentNullException">Thrown if the array is null.</exception>
-        /// <exception cref="System.InvalidOperationException">One or more elements in array do not implement the <see cref="T:System.IComparable`1" /> generic interface.</exception>
         [Pure]
-        public static T[] SortCopy<T>(this T[] array)
+        public static T[] SortCopy<T>(this T[] array) where T : IComparable<T>
         {
             T[] copy = array.Copy();
             Array.Sort(copy);
+            return copy;
+        }
+
+        /// <summary>
+        /// Creates a copy of the array sorted in descending order.
+        /// </summary>
+        /// <param name="array">The array to sort.</param>
+        /// <typeparam name="T">The type of the values in the array.</typeparam>
+        /// <exception cref="System.ArgumentNullException">Thrown if the array is null.</exception>
+        /// <exception cref="System.ArgumentException">The implementation of comparison caused an error during the sort. For example, comparison might not return 0 when comparing an item with itself.</exception>
+        [Pure]
+        public static T[] ReverseSortCopy<T>(this T[] array) where T : IComparable<T>
+        {
+            T[] copy = array.Copy();
+            Array.Sort(copy, (a, b) => b.CompareTo(a));
             return copy;
         }
 

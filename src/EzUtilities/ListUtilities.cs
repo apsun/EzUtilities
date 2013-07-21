@@ -11,11 +11,44 @@ namespace EzUtilities
     public static class ListUtilities
     {
         /// <summary>
+        /// Gets the indicies corresponding to the items in a list. 
+        /// Returns -1 for the index if the item was not found.
+        /// </summary>
+        /// <param name="list">The list to search.</param>
+        /// <param name="items">The items to find.</param>
+        /// <typeparam name="T">The type of items in the list.</typeparam>
+        /// <returns>The indicies of the items within the list.</returns>
+        /// <exception cref="ArgumentException">Thrown if items contains duplicates.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if the list or the items are null.</exception>
+        public static int[] GetIndicies<T>(this IList<T> list, params T[] items)
+        {
+            if (list == null) throw new ArgumentNullException("list");
+            if (items == null) throw new ArgumentNullException("items");
+            int[] indicies = new int[items.Length];
+            Comparer<T> comparer = Comparer<T>.Default;
+            for (int i = 0; i < indicies.Length; ++i)
+            {
+                for (int j = i + 1; j < items.Length; ++j)
+                {
+                    if (comparer.Compare(items[i], items[j]) == 0)
+                    {
+                        throw new ArgumentException("Items cannot contain duplicates", "items");
+                    }
+                }
+
+                int index = list.IndexOf(items[i]);
+                indicies[i] = index;
+            }
+            return indicies;
+        }
+
+        /// <summary>
         /// Checks whether the list contains multiple equal values using the default comparer.
         /// </summary>
         /// <param name="list">The list to check.</param>
         /// <typeparam name="T">The type of items in the list.</typeparam>
         /// <returns>True if an equal pair was found; false otherwise.</returns>
+        /// <exception cref="System.ArgumentNullException">Thrown if the list is null.</exception>
         public static bool ContainsDuplicates<T>(this IList<T> list)
         {
             return list.ContainsDuplicates(Comparer<T>.Default);
@@ -28,8 +61,12 @@ namespace EzUtilities
         /// <param name="comparer">The comparer used to check for equality.</param>
         /// <typeparam name="T">The type of items in the list.</typeparam>
         /// <returns>True if an equal pair was found; false otherwise.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the list or the comparer are null.</exception>
         public static bool ContainsDuplicates<T>(this IList<T> list, IComparer<T> comparer)
         {
+            if (list == null) throw new ArgumentNullException("list");
+            if (comparer == null) throw new ArgumentNullException("comparer");
+
             for (int i = 0; i < list.Count; ++i)
             {
                 for (int j = i + 1; j < list.Count; ++j)
@@ -48,8 +85,10 @@ namespace EzUtilities
         /// <param name="index">The index to check.</param>
         /// <typeparam name="T">The type of items in the list.</typeparam>
         /// <returns>True if the index is between 0 and the list's length; false otherwise.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the list is null.</exception>
         public static bool IsValidIndex<T>(this IList<T> list, int index)
         {
+            if (list == null) throw new ArgumentNullException("list");
             return index >= 0 && index < list.Count;
         }
 
@@ -370,6 +409,70 @@ namespace EzUtilities
         }
 
         /// <summary>
+        /// Removes multiple items from a list. 
+        /// Returns whether all items were removed from the list.
+        /// </summary>
+        /// <param name="list">The list to remove items from.</param>
+        /// <param name="items">The items to remove.</param>
+        /// <typeparam name="T">The type of items in the list.</typeparam>
+        /// <returns>Whether all items were removed from the list.</returns>
+        /// <exception cref="System.ArgumentException">Thrown if items contains duplicates.</exception>
+        /// <exception cref="System.ArgumentNullException">Thrown if the list is null.</exception>
+        /// <exception cref="System.NotSupportedException">The <see cref="T:System.Collections.Generic.IList`1" /> is read-only.</exception>
+        public static bool Remove<T>(this IList<T> list, params T[] items)
+        {
+            if (items.IsNullOrEmpty()) return true;
+
+            //GetIndicies already checks for duplicates and null list.
+            int[] reverseInd = list.GetIndicies(items).ReverseSortCopy();
+
+            bool allRemoved = true;
+            foreach (int i in reverseInd)
+            {
+                if (i == -1) allRemoved = false;
+                else list.RemoveAt(i);
+            }
+
+            return allRemoved;
+        }
+
+        /// <summary>
+        /// Removes multiple items from a list.
+        /// </summary>
+        /// <param name="list">The list to remove items from.</param>
+        /// <param name="indicies">The indicies of the items to remove.</param>
+        /// <typeparam name="T">The type of items in the list.</typeparam>
+        /// <exception cref="ArgumentException">Thrown if indicies contains duplicates.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">index is not a valid index in the <see cref="T:System.Collections.Generic.IList`1" />.</exception>
+        /// <exception cref="System.NotSupportedException">The <see cref="T:System.Collections.Generic.IList`1" /> is read-only.</exception>
+        public static void RemoveAt<T>(this IList<T> list, params int[] indicies)
+        {
+            if (indicies.IsNullOrEmpty()) return;
+
+            int[] reverseInd = indicies.ReverseSortCopy();
+
+            //Only need to check the minimum index. 
+            //The largest index will be checked in the loop below anyways.
+            if (indicies[indicies.Length - 1] < 0)
+            {
+                throw new ArgumentOutOfRangeException("indicies", "One or more indicies are out of range");
+            }
+
+            for (int i = 0; i < reverseInd.Length; i++)
+            {
+                int index = reverseInd[i];
+
+                //Only need to check the next item since the list is sorted
+                if (i < reverseInd.Length - 1 && reverseInd[i + 1] == index)
+                {
+                    throw new ArgumentException("Indicies cannot contain duplicates", "indicies");
+                }
+
+                list.RemoveAt(index);
+            }
+        }
+
+        /// <summary>
         /// Pseudo-randomly shuffles a list using the Knuth-Fisher-Yates shuffle algorithm.
         /// </summary>
         /// <typeparam name="T">The type of items in the list.</typeparam>
@@ -396,10 +499,42 @@ namespace EzUtilities.NonGeneric
     public static class ListUtilities
     {
         /// <summary>
+        /// Gets the indicies corresponding to the items in a list. 
+        /// Throws an exception if an item was not found.
+        /// </summary>
+        /// <param name="list">The list to search.</param>
+        /// <param name="items">The items to find.</param>
+        /// <returns>The indicies of the items within the list.</returns>
+        /// <exception cref="ArgumentException">Thrown if items contains duplicates.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if the list or the items are null.</exception>
+        public static int[] GetIndicies(this IList list, params object[] items)
+        {
+            if (list == null) throw new ArgumentNullException("list");
+            if (items == null) throw new ArgumentNullException("items");
+            int[] indicies = new int[items.Length];
+            Comparer comparer = Comparer.Default;
+            for (int i = 0; i < indicies.Length; ++i)
+            {
+                for (int j = i + 1; j < items.Length; ++j)
+                {
+                    if (comparer.Compare(items[i], items[j]) == 0)
+                    {
+                        throw new ArgumentException("Items cannot contain duplicates", "items");
+                    }
+                }
+
+                int index = list.IndexOf(items[i]);
+                indicies[i] = index;
+            }
+            return indicies;
+        }
+
+        /// <summary>
         /// Checks whether the list contains multiple equal values using the default comparer.
         /// </summary>
         /// <param name="list">The list to check.</param>
         /// <returns>True if an equal pair was found; false otherwise.</returns>
+        /// <exception cref="System.ArgumentNullException">Thrown if the list is null.</exception>
         public static bool ContainsDuplicates(this IList list)
         {
             return list.ContainsDuplicates(Comparer.Default);
@@ -411,8 +546,12 @@ namespace EzUtilities.NonGeneric
         /// <param name="list">The list to check.</param>
         /// <param name="comparer">The comparer used to check for equality.</param>
         /// <returns>True if an equal pair was found; false otherwise.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the list or the comparer are null.</exception>
         public static bool ContainsDuplicates(this IList list, IComparer comparer)
         {
+            if (list == null) throw new ArgumentNullException("list");
+            if (comparer == null) throw new ArgumentNullException("comparer");
+
             for (int i = 0; i < list.Count; ++i)
             {
                 for (int j = i + 1; j < list.Count; ++j)
@@ -430,8 +569,10 @@ namespace EzUtilities.NonGeneric
         /// <param name="list">The list to check.</param>
         /// <param name="index">The index to check.</param>
         /// <returns>True if the index is between 0 and the list's length; false otherwise.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the list is null.</exception>
         public static bool IsValidIndex(this IList list, int index)
         {
+            if (list == null) throw new ArgumentNullException("list");
             return index >= 0 && index < list.Count;
         }
 
@@ -724,6 +865,68 @@ namespace EzUtilities.NonGeneric
             }
 
             list[targetIndex] = item;
+        }
+
+        /// <summary>
+        /// Removes multiple items from a list. 
+        /// Returns whether all items were removed from the list.
+        /// </summary>
+        /// <param name="list">The list to remove items from.</param>
+        /// <param name="items">The items to remove.</param>
+        /// <returns>Whether all items were removed from the list.</returns>
+        /// <exception cref="System.ArgumentException">Thrown if items contains duplicates.</exception>
+        /// <exception cref="System.ArgumentNullException">Thrown if the list is null.</exception>
+        /// <exception cref="System.NotSupportedException">The <see cref="T:System.Collections.Generic.IList`1" /> is read-only.</exception>
+        public static bool Remove(this IList list, params object[] items)
+        {
+            if (items.IsNullOrEmpty()) return true;
+
+            //GetIndicies already checks for duplicates and null list.
+            int[] reverseInd = list.GetIndicies(items).ReverseSortCopy();
+
+            bool allRemoved = true;
+            foreach (int i in reverseInd)
+            {
+                if (i == -1) allRemoved = false;
+                else list.RemoveAt(i);
+            }
+
+            return allRemoved;
+        }
+
+        /// <summary>
+        /// Removes multiple items from a list.
+        /// </summary>
+        /// <param name="list">The list to remove items from.</param>
+        /// <param name="indicies">The indicies of the items to remove.</param>
+        /// <exception cref="ArgumentException">Thrown if indicies contains duplicates.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException">index is not a valid index in the <see cref="T:System.Collections.Generic.IList`1" />.</exception>
+        /// <exception cref="System.NotSupportedException">The <see cref="T:System.Collections.Generic.IList`1" /> is read-only.</exception>
+        public static void RemoveAt(this IList list, params int[] indicies)
+        {
+            if (indicies.IsNullOrEmpty()) return;
+
+            int[] reverseInd = indicies.ReverseSortCopy();
+
+            //Only need to check the minimum index. 
+            //The largest index will be checked in the loop below anyways.
+            if (indicies[indicies.Length - 1] < 0)
+            {
+                throw new ArgumentOutOfRangeException("indicies", "One or more indicies are out of range");
+            }
+
+            for (int i = 0; i < reverseInd.Length; i++)
+            {
+                int index = reverseInd[i];
+
+                //Only need to check the next item since the list is sorted
+                if (i < reverseInd.Length - 1 && reverseInd[i + 1] == index)
+                {
+                    throw new ArgumentException("Indicies cannot contain duplicates", "indicies");
+                }
+
+                list.RemoveAt(index);
+            }
         }
 
         /// <summary>
