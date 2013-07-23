@@ -28,9 +28,10 @@ namespace EzUtilities
             Comparer<T> comparer = Comparer<T>.Default;
             for (int i = 0; i < indices.Length; ++i)
             {
+                T item = items[i];
                 for (int j = i + 1; j < items.Length; ++j)
                 {
-                    if (comparer.Compare(items[i], items[j]) == 0)
+                    if (comparer.Compare(item, items[j]) == 0)
                     {
                         throw new ArgumentException("Items cannot contain duplicates", "items");
                     }
@@ -69,9 +70,10 @@ namespace EzUtilities
 
             for (int i = 0; i < list.Count; ++i)
             {
+                T item = list[i];
                 for (int j = i + 1; j < list.Count; ++j)
                 {
-                    if (comparer.Compare(list[i], list[j]) == 0) return true;
+                    if (comparer.Compare(item, list[j]) == 0) return true;
                 }
             }
 
@@ -515,9 +517,10 @@ namespace EzUtilities.NonGeneric
             Comparer comparer = Comparer.Default;
             for (int i = 0; i < indices.Length; ++i)
             {
+                object item = list[i];
                 for (int j = i + 1; j < items.Length; ++j)
                 {
-                    if (comparer.Compare(items[i], items[j]) == 0)
+                    if (comparer.Compare(item, items[j]) == 0)
                     {
                         throw new ArgumentException("Items cannot contain duplicates", "items");
                     }
@@ -554,9 +557,10 @@ namespace EzUtilities.NonGeneric
 
             for (int i = 0; i < list.Count; ++i)
             {
+                object item = list[i];
                 for (int j = i + 1; j < list.Count; ++j)
                 {
-                    if (comparer.Compare(list[i], list[j]) == 0) return true;
+                    if (comparer.Compare(item, list[j]) == 0) return true;
                 }
             }
 
