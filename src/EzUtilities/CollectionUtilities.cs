@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
@@ -37,44 +36,6 @@ namespace EzUtilities
         {
             if (collection == null) throw new ArgumentNullException("collection");
             T[] copy = new T[collection.Count];
-            collection.CopyTo(copy, 0);
-            return copy;
-        }
-    }
-}
-
-namespace EzUtilities.NonGeneric
-{
-    /// <summary>
-    /// Provides utilities for working with non-generic collections.
-    /// </summary>
-    public static class CollectionUtilities
-    {
-        /// <summary>
-        /// Checks whether the collection is null or empty.
-        /// </summary>
-        /// <param name="collection">The collection to check.</param>
-        /// <returns>True if the collection is null or empty; false otherwise.</returns>
-        [Pure]
-        public static bool IsNullOrEmpty(this ICollection collection)
-        {
-            return collection == null || collection.Count == 0;
-        }
-
-        /// <summary>
-        /// Copies the contents of the collection into a new array.
-        /// </summary>
-        /// 
-        /// <param name="collection">The collection to copy.</param>
-        /// 
-        /// <returns>The copied array.</returns>
-        /// 
-        /// <exception cref="ArgumentNullException">Thrown if the collection is null.</exception>
-        [Pure]
-        public static object[] Copy(this ICollection collection)
-        {
-            if (collection == null) throw new ArgumentNullException("collection");
-            object[] copy = new object[collection.Count];
             collection.CopyTo(copy, 0);
             return copy;
         }
