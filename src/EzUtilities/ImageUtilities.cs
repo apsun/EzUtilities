@@ -376,5 +376,18 @@ namespace EzUtilities
         {
             return new Rectangle(0, 0, img.Width, img.Height);
         }
+
+        /// <summary>
+        /// Quickly gets the size of an image from a file.
+        /// </summary>
+        /// <param name="path">The path to the image file.</param>
+        public static SizeF GetSize(string path)
+        {
+            using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read))
+            using (Image img = Image.FromStream(file, false, false))
+            {
+                return img.PhysicalDimension;
+            }
+        }
     }
 }

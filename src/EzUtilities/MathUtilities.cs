@@ -7,63 +7,74 @@ namespace EzUtilities
     /// </summary>
     public static class MathUtilities
     {
-        private const float FloatEqualityEpsilon = 0.00001f;
-        private const double DoubleEqualityEpsilon = 0.0000000001d;
+        /// <summary>
+        /// The single-precision epsilon, equal to 2^-23 (1.19209290E-07).
+        /// </summary>
+        public static readonly float SingleEpsilon = (float)Math.Pow(2, -23);
 
         /// <summary>
-        /// Checks whether two floats are approximately equal to each other.
+        /// The double-precision epsilon, equal to 2^-52 (2.2204460492503131E-16).
+        /// </summary>
+        public static readonly double DoubleEpsilon = Math.Pow(2, -52);
+
+        /// <summary>
+        /// Checks whether two single-precision floating point numbers 
+        /// are approximately equal to each other.
         /// </summary>
         /// 
-        /// <param name="a">The first float.</param>
-        /// <param name="b">The second float.</param>
+        /// <param name="a">The first number.</param>
+        /// <param name="b">The second number.</param>
         /// <param name="epsilon">The tolerance for differences in values.</param>
         /// 
         /// <returns>Whether the two floats are approximately equal.</returns>
-        public static bool ApproxEquals(this float a, float b, float epsilon)
+        public static bool ApproxEquals(float a, float b, float epsilon)
         {
             return Math.Abs(a - b) < epsilon;
         }
 
         /// <summary>
-        /// Checks whether two floats are approximately equal to each other 
-        /// using the default tolerance epsilon (1E-05).
+        /// Checks whether two single-precision floating point numbers 
+        /// are approximately equal to each other using the default 
+        /// tolerance epsilon (1000*2^-23).
         /// </summary>
         /// 
-        /// <param name="a">The first float.</param>
-        /// <param name="b">The second float.</param>
+        /// <param name="a">The first number.</param>
+        /// <param name="b">The second number.</param>
         /// 
         /// <returns>Whether the two floats are approximately equal.</returns>
         public static bool ApproxEquals(this float a, float b)
         {
-            return ApproxEquals(a, b, FloatEqualityEpsilon);
+            return ApproxEquals(a, b, 1000 * SingleEpsilon);
         }
 
         /// <summary>
-        /// Checks whether two doubles are approximately equal to each other.
+        /// Checks whether two double-precision floating point numbers 
+        /// are approximately equal to each other.
         /// </summary>
         /// 
-        /// <param name="a">The first double.</param>
-        /// <param name="b">The second double.</param>
+        /// <param name="a">The first number.</param>
+        /// <param name="b">The second number.</param>
         /// <param name="epsilon">The tolerance for differences in values.</param>
         /// 
         /// <returns>Whether the two doubles are approximately equal.</returns>
-        public static bool ApproxEquals(this double a, double b, double epsilon)
+        public static bool ApproxEquals(double a, double b, double epsilon)
         {
             return Math.Abs(a - b) < epsilon;
         }
 
         /// <summary>
-        /// Checks whether two doubles are approximately equal to each other 
-        /// using the default tolerance epsilon (1E-10).
+        /// Checks whether two double-precision floating point numbers 
+        /// are approximately equal to each other using the default 
+        /// tolerance epsilon (1000*2^-52).
         /// </summary>
         /// 
-        /// <param name="a">The first double.</param>
-        /// <param name="b">The second double.</param>
+        /// <param name="a">The first number.</param>
+        /// <param name="b">The second number.</param>
         /// 
         /// <returns>Whether the two doubles are approximately equal.</returns>
         public static bool ApproxEquals(this double a, double b)
         {
-            return ApproxEquals(a, b, DoubleEqualityEpsilon);
+            return ApproxEquals(a, b, 1000 * DoubleEpsilon);
         }
 
         /// <summary>

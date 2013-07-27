@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 
 namespace EzUtilities
 {
@@ -189,19 +190,13 @@ namespace EzUtilities
         {
             if (!Directory.Exists(path)) return false;
 
-            bool allItemsDeleted = true;
-            foreach (var file in Directory.GetFiles(path))
-            {
-                if (!DeleteFile(file)) allItemsDeleted = false;
-            }
+            bool allItemsDeleted = Directory.GetFiles(path)
+                .Aggregate(true, (current, file) => DeleteFile(file) && current);
 
-            foreach (var dir in Directory.GetDirectories(path))
-            {
-                if (!DeleteDirectory(dir)) allItemsDeleted = false;
-            }
+                 allItemsDeleted = Directory.GetDirectories(path)
+                .Aggregate(allItemsDeleted, (current, dir) => DeleteDirectory(dir) && current);
 
             return allItemsDeleted;
-
         }
 
         /// <summary>
