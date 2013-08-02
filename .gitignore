@@ -5,9 +5,8 @@ obj/
 *.user
 *.suo
 
-#--Unit tests--#
+#--Other--#
 
 UtilitiesTest/
 PerformanceTest/
-
-#--Other--#
+TestResults/

@@ -209,7 +209,7 @@ namespace EzUtilities
             //can be named folder.exe as well.
             var parentDi = new DirectoryInfo(path).Parent;
             if (parentDi == null) throw new ArgumentException("Path is a root path");
-            string parent = parentDi.Name;
+            string parent = parentDi.FullName;
             return parent;
         }
 
