@@ -78,7 +78,7 @@ namespace EzUtilities
         /// <returns>The added element.</returns>
         public static XElement AddElement(this XElement parent, string name, object value)
         {
-            XElement element = new XElement(name, value);
+            var element = new XElement(name, value);
             parent.Add(element);
             return element;
         }
@@ -94,7 +94,7 @@ namespace EzUtilities
         /// <returns>The added element.</returns>
         public static XElement AddElement(this XElement parent, string name, params object[] values)
         {
-            XElement element = new XElement(name, values);
+            var element = new XElement(name, values);
             parent.Add(element);
             return element;
         }

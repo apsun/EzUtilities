@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.Contracts;
 
 namespace EzUtilities
 {
@@ -60,7 +59,6 @@ namespace EzUtilities
         /// <param name="array">The array to sort.</param>
         /// <typeparam name="T">The type of the values in the array.</typeparam>
         /// <exception cref="System.ArgumentNullException">Thrown if the array is null.</exception>
-        [Pure]
         public static T[] SortCopy<T>(this T[] array) where T : IComparable<T>
         {
             T[] copy = array.Copy();
@@ -75,7 +73,6 @@ namespace EzUtilities
         /// <typeparam name="T">The type of the values in the array.</typeparam>
         /// <exception cref="System.ArgumentNullException">Thrown if the array is null.</exception>
         /// <exception cref="System.ArgumentException">The implementation of comparison caused an error during the sort. For example, comparison might not return 0 when comparing an item with itself.</exception>
-        [Pure]
         public static T[] ReverseSortCopy<T>(this T[] array) where T : IComparable<T>
         {
             T[] copy = array.Copy();
@@ -93,12 +90,11 @@ namespace EzUtilities
         /// <returns>The copied array.</returns>
         /// 
         /// <exception cref="ArgumentNullException">Thrown if the array is null.</exception>
-        [Pure]
         public static T[] Copy<T>(this T[] array)
         {
             if (array == null) throw new ArgumentNullException("array");
             int length = array.Length;
-            T[] copy = new T[length];
+            var copy = new T[length];
             Array.Copy(array, copy, length);
             return copy;
         }
@@ -113,13 +109,12 @@ namespace EzUtilities
         /// <returns>The copied array.</returns>
         /// 
         /// <exception cref="ArgumentNullException">Thrown if the array is null.</exception>
-        [Pure]
         public static T[,] Copy<T>(this T[,] array)
         {
             if (array == null) throw new ArgumentNullException("array");
             int xLength = array.GetLength(0);
             int yLength = array.GetLength(1);
-            T[,] copy = new T[xLength, yLength];
+            var copy = new T[xLength, yLength];
             Array.Copy(array, copy, array.Length);
             return copy;
         }
@@ -133,7 +128,6 @@ namespace EzUtilities
         /// <returns>The resized array.</returns>
         /// 
         /// <exception cref="ArgumentNullException">Thrown if array is null.</exception>
-        [Pure]
         public static T[] TrimNullsFromStart<T>(this T[] array) where T : class
         {
             if (array == null) throw new ArgumentNullException("array");
@@ -144,8 +138,7 @@ namespace EzUtilities
                 if (array[indexOfFirstNull] == null) break;
             }
 
-            //New array length = indexOfFirstNull
-            T[] trimmedArray = new T[indexOfFirstNull];
+            var trimmedArray = new T[indexOfFirstNull];
             Array.Copy(array, trimmedArray, indexOfFirstNull);
             return trimmedArray;
         }
@@ -159,7 +152,6 @@ namespace EzUtilities
         /// <returns>The resized array.</returns>
         /// 
         /// <exception cref="ArgumentNullException">Thrown if array is null.</exception>
-        [Pure]
         public static T[] TrimNullsFromEnd<T>(this T[] array) where T : class
         {
             if (array == null) throw new ArgumentNullException("array");
@@ -172,7 +164,7 @@ namespace EzUtilities
 
             int newLength = indexOfFirstValue + 1;
 
-            T[] trimmedArray = new T[newLength];
+            var trimmedArray = new T[newLength];
             Array.Copy(array, trimmedArray, newLength);
             return trimmedArray;
         }
@@ -187,14 +179,13 @@ namespace EzUtilities
         /// <returns>The array with null values removed.</returns>
         /// 
         /// <exception cref="ArgumentNullException">Thrown if array is null.</exception>
-        [Pure]
         public static T[] RemoveNulls<T>(this T[] array) where T : class
         {
             if (array == null) throw new ArgumentNullException("array");
 
             int nullsRemoved = 0;
             int length = array.Length;
-            T[] copy = new T[length];
+            var copy = new T[length];
             for (int i = 0; i < array.Length; ++i)
             {
                 T current = array[i];

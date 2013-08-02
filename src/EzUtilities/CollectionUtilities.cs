@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.Contracts;
 using System.Linq;
 
 namespace EzUtilities
@@ -17,11 +16,10 @@ namespace EzUtilities
         /// <typeparam name="T">The type of items in the IEnumerable.</typeparam>
         /// <returns>True if an equal pair was found; false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if the IEnumerable or the comparer are null.</exception>
-        [Pure]
         public static bool ContainsDuplicates<T>(this IEnumerable<T> items)
         {
             if (items == null) throw new ArgumentNullException("items");
-            HashSet<T> set = new HashSet<T>();
+            var set = new HashSet<T>();
             return items.Any(item => !set.Add(item));
         }
 
@@ -31,7 +29,6 @@ namespace EzUtilities
         /// <param name="collection">The collection to check.</param>
         /// <typeparam name="T">The type of items in the collection.</typeparam>
         /// <returns>True if the collection is null or empty; false otherwise.</returns>
-        [Pure]
         public static bool IsNullOrEmpty<T>(this ICollection<T> collection)
         {
             return collection == null || collection.Count == 0;
@@ -47,11 +44,10 @@ namespace EzUtilities
         /// <returns>The copied array.</returns>
         /// 
         /// <exception cref="ArgumentNullException">Thrown if the collection is null.</exception>
-        [Pure]
         public static T[] Copy<T>(this ICollection<T> collection)
         {
             if (collection == null) throw new ArgumentNullException("collection");
-            T[] copy = new T[collection.Count];
+            var copy = new T[collection.Count];
             collection.CopyTo(copy, 0);
             return copy;
         }
@@ -65,7 +61,6 @@ namespace EzUtilities
         /// <typeparam name="T">The type of items in the list.</typeparam>
         /// <returns>The indices of the items within the list.</returns>
         /// <exception cref="ArgumentNullException">Thrown if the list or the items are null.</exception>
-        [Pure]
         public static int[] GetIndices<T>(this IList<T> list, params T[] items)
         {
             return list.GetIndices((IList<T>)items);
@@ -80,12 +75,11 @@ namespace EzUtilities
         /// <typeparam name="T">The type of items in the list.</typeparam>
         /// <returns>The indices of the items within the list.</returns>
         /// <exception cref="ArgumentNullException">Thrown if the list or the items are null.</exception>
-        [Pure]
         public static int[] GetIndices<T>(this IList<T> list, IList<T> items)
         {
             if (list == null) throw new ArgumentNullException("list");
             if (items == null) throw new ArgumentNullException("items");
-            int[] indices = new int[items.Count];
+            var indices = new int[items.Count];
             for (int i = 0; i < items.Count; ++i)
             {
                 int index = list.IndexOf(items[i]);
@@ -103,7 +97,6 @@ namespace EzUtilities
         /// <typeparam name="T">The type of items in the list.</typeparam>
         /// <returns>The indices of the items within the list.</returns>
         /// <exception cref="ArgumentNullException">Thrown if the list or the items are null.</exception>
-        [Pure]
         public static IEnumerable<int> GetIndices<T>(this IList<T> list, IEnumerable<T> items)
         {
             if (list == null) throw new ArgumentNullException("list");
@@ -119,7 +112,6 @@ namespace EzUtilities
         /// <typeparam name="T">The type of items in the list.</typeparam>
         /// <returns>True if the index is between 0 and the list's length; false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if the list is null.</exception>
-        [Pure]
         public static bool IsValidIndex<T>(this IList<T> list, int index)
         {
             if (list == null) throw new ArgumentNullException("list");
@@ -170,9 +162,9 @@ namespace EzUtilities
             if (items.IsNullOrEmpty()) return;
 
             int newdestIndex = destIndex;
-            int[] selectedIndices = new int[items.Length];
+            var selectedIndices = new int[items.Length];
 
-            HashSet<T> set = new HashSet<T>();
+            var set = new HashSet<T>();
             for (int i = 0; i < items.Length; ++i)
             {
                 T item = items[i];
@@ -277,9 +269,9 @@ namespace EzUtilities
             if (srcIndices.IsNullOrEmpty()) return;
 
             int newdestIndex = destIndex;
-            T[] items = new T[srcIndices.Length];
+            var items = new T[srcIndices.Length];
 
-            HashSet<int> set = new HashSet<int>();
+            var set = new HashSet<int>();
             for (int i = 0; i < srcIndices.Length; ++i)
             {
                 int indexInList = srcIndices[i];

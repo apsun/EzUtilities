@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 
@@ -10,13 +9,6 @@ namespace EzUtilities
     /// </summary>
     public static class IOUtilities
     {
-        /// <summary>
-        /// Characters considered as whitespace that can be 
-        /// safely removed from the ends of paths.
-        /// </summary>
-        private static readonly char[] WhitespaceChars =
-        { ' ', '\t', '\n', '\v', '\f', '\r', '\x0085' };
-
         /// <summary>
         /// Creates a directory, doing nothing if the directory already exists.
         /// </summary>
@@ -212,9 +204,12 @@ namespace EzUtilities
         public static string GetParentDirectory(string path)
         {
             if (path == null) throw new ArgumentNullException("path");
-            if (path.Length > 3) path = RemoveTrailingSeparator(path);
-            string parent = Path.GetDirectoryName(path);
-            if (parent == null) throw new ArgumentException("Path is a root path");
+            //Even if the path is not a directory, 
+            //we can pretend it is; after all, folders 
+            //can be named folder.exe as well.
+            var parentDi = new DirectoryInfo(path).Parent;
+            if (parentDi == null) throw new ArgumentException("Path is a root path");
+            string parent = parentDi.Name;
             return parent;
         }
 
@@ -224,132 +219,6 @@ namespace EzUtilities
         public static string GetRandomFileName()
         {
             return Path.ChangeExtension(Path.GetRandomFileName(), null);
-        }
-
-        /// <summary>
-        /// Removes all whitespace from the beginning of the path.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
-        public static string RemoveLeadingWhitespace(string path)
-        {
-            if (path == null) throw new ArgumentNullException("path");
-            return path.TrimStart(WhitespaceChars);
-        }
-
-        /// <summary>
-        /// Removes all whitespace from the end of the path.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
-        public static string RemoveTrailingWhitespace(string path)
-        {
-            if (path == null) throw new ArgumentNullException("path");
-            return path.TrimEnd(WhitespaceChars);
-        }
-
-        /// <summary>
-        /// Removes all whitespace from the beginning and end of the path.
-        /// </summary>
-        /// <exception cref="System.ArgumentNullException">Thrown if path is null.</exception>
-        public static string RemoveLeadingAndTrailingWhitespace(string path)
-        {
-            return RemoveLeadingWhitespace(RemoveTrailingWhitespace(path));
-        }
-
-        /// <summary>
-        /// Prepends a directory separator to the beginning of the path if there is not one already. 
-        /// Returns the directory separator if path is empty or null.
-        /// </summary>
-        /// <exception cref="ArgumentException">Thrown if path is not relative.</exception>
-        public static string PrependSeparator(string path)
-        {
-            if (string.IsNullOrEmpty(path))
-                return Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture);
-
-            path = RemoveLeadingWhitespace(path);
-
-            if (IsPathAbsolute(path)) throw new ArgumentException("Path is not relative");
-
-            if (path.IndexOf(Path.DirectorySeparatorChar) == 0) return path;
-            if (path.IndexOf(Path.AltDirectorySeparatorChar) == 0) return path;
-
-            return Path.DirectorySeparatorChar + path;
-        }
-
-        /// <summary>
-        /// Appends a directory separator to the end of the path if there is not one already. 
-        /// Returns the directory separator if path is empty or null.
-        /// </summary>
-        public static string AppendSeparator(string path)
-        {
-            if (string.IsNullOrEmpty(path))
-                return Path.DirectorySeparatorChar.ToString(CultureInfo.InvariantCulture);
-
-            path = RemoveTrailingWhitespace(path);
-            if (path.LastIndexOf(Path.DirectorySeparatorChar) == path.Length - 1) return path;
-            if (path.LastIndexOf(Path.AltDirectorySeparatorChar) == path.Length - 1) return path;
-
-            return path + Path.DirectorySeparatorChar;
-        }
-
-        /// <summary>
-        /// Removes the directory separator character from the 
-        /// beginning of the path, if it exists.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
-        /// <exception cref="ArgumentException">Thrown if path is not relative.</exception>
-        public static string RemoveLeadingSeparator(string path)
-        {
-            if (IsPathAbsolute(path)) throw new ArgumentException("Path is not relative");
-            path = RemoveLeadingWhitespace(path);
-            return path.TrimStart(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        }
-
-        /// <summary>
-        /// Removes the directory separator character from the 
-        /// end of the path, if it exists.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
-        public static string RemoveTrailingSeparator(string path)
-        {
-            if (path == null) throw new ArgumentNullException("path");
-            path = RemoveTrailingWhitespace(path);
-            return path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
-        }
-
-        /// <summary>
-        /// Removes leading and trailing separators from the path.
-        /// </summary>
-        /// <exception cref="System.ArgumentNullException">Thrown if path is null.</exception>
-        public static string RemoveLeadingAndTrailingSeparators(string path)
-        {
-            return RemoveLeadingSeparator(RemoveTrailingSeparator(path));
-        }
-
-        /// <summary>
-        /// Removes the directory separator from the beginning of the path 
-        /// and adds one to the end of the path.
-        /// </summary>
-        /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
-        /// <exception cref="ArgumentException">Thrown if path is absolute.</exception>
-        public static string MakeRelativeDirectoryPath(string path)
-        {
-            if (IsPathAbsolute(path)) throw new ArgumentException("Path cannot be absolute");
-            return AppendSeparator(RemoveLeadingSeparator(path));
-        }
-
-        /// <summary>
-        /// Checks if the path is an absolute local path 
-        /// (e.g. C:\file.txt or C:\directory\).
-        /// </summary>
-        /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
-        public static bool IsPathAbsolute(string path)
-        {
-            if (path == null) throw new ArgumentNullException("path");
-            path = RemoveLeadingWhitespace(path);
-            if (path.Length < 2) return false;
-            if (path[0] == Path.DirectorySeparatorChar) return false;
-            if (path[0] == Path.AltDirectorySeparatorChar) return false;
-            return path[1] == Path.VolumeSeparatorChar;
         }
 
         /// <summary>

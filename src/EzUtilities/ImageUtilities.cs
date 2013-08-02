@@ -182,7 +182,7 @@ namespace EzUtilities
                 throw new ArgumentException("Image does not have exactly one frame dimension");
             }
 
-            FrameDimension dimension = new FrameDimension(dimensions[0]);
+            var dimension = new FrameDimension(dimensions[0]);
             return img.ToFrames(dimension, out streams);
         }
 
@@ -195,13 +195,11 @@ namespace EzUtilities
         /// <param name="streams">The MemoryStreams that correspond to the images.</param>
         public static Image[] ToFrames(this Image img, FrameDimension dimension, out MemoryStream[] streams)
         {
-            //We need to copy the image, or else SelectActiveFrame will
-            //cause permanant changes to the original image.
             using (MemoryStream origStream = img.SaveToStream(img.RawFormat))
             using (Image copy = Image.FromStream(origStream))
             {
                 int frameCount = copy.GetFrameCount(dimension);
-                Image[] frames = new Image[frameCount];
+                var frames = new Image[frameCount];
                 streams = new MemoryStream[frameCount];
                 for (int index = 0; index < frameCount; ++index)
                 {
@@ -227,7 +225,7 @@ namespace EzUtilities
         /// <exception cref="System.Runtime.InteropServices.ExternalException">The image was saved with the wrong image format</exception>
         public static MemoryStream SaveToStream(this Image img, ImageFormat format)
         {
-            MemoryStream ms = new MemoryStream();
+            var ms = new MemoryStream();
             img.Save(ms, format);
             return ms;
         }
@@ -243,7 +241,7 @@ namespace EzUtilities
         /// <exception cref="System.Runtime.InteropServices.ExternalException">The image was saved with the wrong image format.</exception>
         public static MemoryStream SaveToStream(this Image img, ImageCodecInfo encoder, EncoderParameters encoderParams)
         {
-            MemoryStream ms = new MemoryStream();
+            var ms = new MemoryStream();
             img.Save(ms, encoder, encoderParams);
             return ms;
         }
@@ -353,7 +351,7 @@ namespace EzUtilities
         public static EncoderParameters GetQualityEncoderParams(long quality)
         {
             if (quality < 0 || quality > 100) throw new ArgumentOutOfRangeException("quality");
-            EncoderParameters ep = new EncoderParameters();
+            var ep = new EncoderParameters();
             ep.Param[0] = new EncoderParameter(Encoder.Quality, quality);
             return ep;
         }
@@ -383,7 +381,7 @@ namespace EzUtilities
         /// <param name="path">The path to the image file.</param>
         public static SizeF GetSize(string path)
         {
-            using (FileStream file = new FileStream(path, FileMode.Open, FileAccess.Read))
+            using (var file = new FileStream(path, FileMode.Open, FileAccess.Read))
             using (Image img = Image.FromStream(file, false, false))
             {
                 return img.PhysicalDimension;

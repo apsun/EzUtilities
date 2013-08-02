@@ -110,7 +110,7 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Gets a random combination of a specified number of items in the array.
+        /// Gets a random permutation of a specified number of items in the array.
         /// </summary>
         /// 
         /// <param name="count">The number of values to get.</param>
@@ -126,7 +126,7 @@ namespace EzUtilities
         {
             if (count < 0 || count > array.Length) throw new ArgumentOutOfRangeException("count");
 
-            T[] randomized = new T[count];
+            var randomized = new T[count];
 
             if (count == 0) return randomized;
 
