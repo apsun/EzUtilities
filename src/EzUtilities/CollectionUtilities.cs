@@ -110,12 +110,27 @@ namespace EzUtilities
         /// <param name="list">The list to check.</param>
         /// <param name="index">The index to check.</param>
         /// <typeparam name="T">The type of items in the list.</typeparam>
-        /// <returns>True if the index is between 0 and the list's length; false otherwise.</returns>
+        /// <returns>True if the index is [0, length); false otherwise.</returns>
         /// <exception cref="ArgumentNullException">Thrown if the list is null.</exception>
         public static bool IsValidIndex<T>(this IList<T> list, int index)
         {
             if (list == null) throw new ArgumentNullException("list");
             return index >= 0 && index < list.Count;
+        }
+
+        /// <summary>
+        /// Checks if the index is a valid index for this list 
+        /// or is equal to the list's count (for rearranging purposes).
+        /// </summary>
+        /// <param name="list">The list to check.</param>
+        /// <param name="index">The index to check.</param>
+        /// <typeparam name="T">The type of items in the list.</typeparam>
+        /// <returns>True if the index is [0, length]; false otherwise.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the list is null.</exception>
+        public static bool IsValidRearrangeIndex<T>(this IList<T> list, int index)
+        {
+            if (list == null) throw new ArgumentNullException("list");
+            return index >= 0 && index <= list.Count;
         }
 
         /// <summary>
@@ -156,7 +171,7 @@ namespace EzUtilities
             if (list == null)
                 throw new ArgumentNullException("list");
 
-            if (destIndex < 0 || destIndex > list.Count)
+            if (!list.IsValidRearrangeIndex(destIndex))
                 throw new ArgumentOutOfRangeException("destIndex");
 
             if (items.IsNullOrEmpty()) return;
@@ -263,7 +278,7 @@ namespace EzUtilities
             if (list == null)
                 throw new ArgumentNullException("list");
 
-            if (destIndex < 0 || destIndex > list.Count)
+            if (!list.IsValidRearrangeIndex(destIndex))
                 throw new ArgumentOutOfRangeException("destIndex");
 
             if (srcIndices.IsNullOrEmpty()) return;
@@ -350,7 +365,11 @@ namespace EzUtilities
             int srcIndex = list.IndexOf(item);
             if (srcIndex == -1)
                 throw new InvalidOperationException("Item was not found in the list");
+
             if (destIndex == srcIndex) return;
+
+            if (!list.IsValidRearrangeIndex(destIndex))
+                throw new ArgumentOutOfRangeException("destIndex", "Target index out of range");
 
             if (destIndex > srcIndex)
             {
@@ -387,7 +406,7 @@ namespace EzUtilities
 
             if (destIndex == srcIndex) return;
 
-            if (!list.IsValidIndex(destIndex))
+            if (!list.IsValidRearrangeIndex(destIndex))
                 throw new ArgumentOutOfRangeException("destIndex", "Target index out of range");
 
             if (!list.IsValidIndex(srcIndex))
