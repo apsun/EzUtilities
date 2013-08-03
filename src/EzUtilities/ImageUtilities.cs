@@ -387,5 +387,39 @@ namespace EzUtilities
                 return img.PhysicalDimension;
             }
         }
+
+        /// <summary>
+        /// Creates a copy of the image with its colors inverted.
+        /// </summary>
+        /// <param name="image">The image to invert.</param>
+        /// <returns>The inverted image.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the image is null.</exception>
+        public static Bitmap InvertColors(this Image image)
+        {
+            if (image == null) throw new ArgumentNullException("image");
+
+            var attributes = new ImageAttributes();
+            float[][] colorMatrixElements =
+            { 
+                new float[] {-1,  0,  0,  0,  0 },
+                new float[] { 0, -1,  0,  0,  0 },
+                new float[] { 0,  0, -1,  0,  0 },
+                new float[] { 0,  0,  0,  1,  0 },
+                new float[] { 1,  1,  1,  0,  1 }
+            };
+            var matrix = new ColorMatrix(colorMatrixElements);
+            attributes.SetColorMatrix(matrix, ColorMatrixFlag.Default, ColorAdjustType.Bitmap);
+
+            int w = image.Width;
+            int h = image.Height;
+            var rect = new Rectangle(0, 0, w, h);
+            var bmp = new Bitmap(w, h, image.PixelFormat);
+            using (var g = Graphics.FromImage(bmp))
+            {
+                g.DrawImage(image, rect, 0, 0, w, h, GraphicsUnit.Pixel, attributes);
+            }
+
+            return bmp;
+        }
     }
 }
