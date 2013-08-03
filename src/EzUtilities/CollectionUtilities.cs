@@ -176,6 +176,12 @@ namespace EzUtilities
 
             if (items.IsNullOrEmpty()) return;
 
+            if (items.Length == 1)
+            {
+                list.Rearrange(destIndex, items[0]);
+                return;
+            }
+
             int newdestIndex = destIndex;
             var selectedIndices = new int[items.Length];
 
@@ -282,6 +288,12 @@ namespace EzUtilities
                 throw new ArgumentOutOfRangeException("destIndex");
 
             if (srcIndices.IsNullOrEmpty()) return;
+
+            if (srcIndices.Length == 1)
+            {
+                list.RearrangeIndex(destIndex, srcIndices[0]);
+                return;
+            }
 
             int newdestIndex = destIndex;
             var items = new T[srcIndices.Length];
@@ -445,6 +457,11 @@ namespace EzUtilities
         /// <exception cref="System.NotSupportedException">The <see cref="T:System.Collections.Generic.IList`1" /> is read-only.</exception>
         public static bool Remove<T>(this IList<T> list, params T[] items)
         {
+            if (items != null && items.Length == 1)
+            {
+                if (list != null) return list.Remove(items[0]);
+            }
+
             return list.Remove((IEnumerable<T>)items);
         }
 
@@ -472,12 +489,21 @@ namespace EzUtilities
         /// <param name="list">The list to remove items from.</param>
         /// <param name="indices">The indices of the items to remove.</param>
         /// <typeparam name="T">The type of items in the list.</typeparam>
+        /// <exception cref="ArgumentNullException">Thrown if the list is null.</exception>
         /// <exception cref="ArgumentException">Thrown if indices contains duplicates.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">index is not a valid index in the <see cref="T:System.Collections.Generic.IList`1" />.</exception>
         /// <exception cref="System.NotSupportedException">The <see cref="T:System.Collections.Generic.IList`1" /> is read-only.</exception>
         public static void RemoveAt<T>(this IList<T> list, params int[] indices)
         {
+            if (list == null) throw new ArgumentNullException("list");
+
             if (indices.IsNullOrEmpty()) return;
+
+            if (indices.Length == 1)
+            {
+                list.RemoveAt(indices[0]);
+                return;
+            }
 
             int[] reverseInd = indices.ReverseSortCopy();
 
@@ -508,9 +534,13 @@ namespace EzUtilities
         /// <param name="predicate">The predicate that determines whether to remove an item.</param>
         /// <typeparam name="T">The type of items in the list.</typeparam>
         /// <returns>Whether an item was removed.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the list or the predicate is null.</exception>
         /// <exception cref="System.NotSupportedException">The <see cref="T:System.Collections.Generic.IList`1" /> is read-only.</exception>
         public static bool RemoveFirst<T>(this IList<T> list, Func<T, bool> predicate)
         {
+            if (list == null) throw new ArgumentNullException("list");
+            if (predicate == null) throw new ArgumentNullException("predicate");
+
             for (int i = 0; i < list.Count; i++)
             {
                 T item = list[i];
@@ -530,9 +560,13 @@ namespace EzUtilities
         /// <param name="predicate">The predicate that determines whether to remove an item.</param>
         /// <typeparam name="T">The type of items in the list.</typeparam>
         /// <returns>Whether any items were removed.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the list or the predicate is null.</exception>
         /// <exception cref="System.NotSupportedException">The <see cref="T:System.Collections.Generic.IList`1" /> is read-only.</exception>
         public static bool RemoveWhere<T>(this IList<T> list, Func<T, bool> predicate)
         {
+            if (list == null) throw new ArgumentNullException("list");
+            if (predicate == null) throw new ArgumentNullException("predicate");
+
             bool anyRemoved = false;
             for (int i = 0; i < list.Count; i++)
             {
@@ -550,8 +584,11 @@ namespace EzUtilities
         /// </summary>
         /// <typeparam name="T">The type of items in the list.</typeparam>
         /// <param name="list">The list to shuffle.</param>
+        /// <exception cref="ArgumentNullException">Thrown if the list is null.</exception>
         public static void Shuffle<T>(this IList<T> list)
         {
+            if (list == null) throw new ArgumentNullException("list");
+
             int n = list.Count;
             while (n-- > 0)
             {
