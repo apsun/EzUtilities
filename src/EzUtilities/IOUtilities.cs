@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -10,20 +11,15 @@ namespace EzUtilities
     public static class IOUtilities
     {
         /// <summary>
-        /// Creates a directory, doing nothing if the directory already exists.
+        /// Creates a directory, doing nothing if the directory already exists. 
+        /// This does not throw an exception if the creation fails.
         /// </summary>
-        /// 
         /// <param name="path">The path of the directory to create.</param>
-        /// 
         /// <returns>
-        /// Whether the directory was created; false if the 
-        /// creation failed or the directory already exists.
+        /// False if the creation failed or the directory already exists; true otherwise.
         /// </returns>
-        /// 
-        /// <exception cref="System.ArgumentNullException">Thrown if path is null.</exception>
-        public static bool CreateDirectory(string path)
+        public static bool TryCreateDirectory(string path)
         {
-            if (path == null) throw new ArgumentNullException("path");
             if (Directory.Exists(path)) return false;
 
             try
@@ -38,135 +34,95 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Creates the directory that contains this file or directory. 
+        /// Deletes a directory and all subdirectories and files, 
+        /// without throwing an exception if the operation fails.
         /// </summary>
-        /// 
-        /// <param name="path">The path to the file or directory.</param>
-        /// 
-        /// <returns>
-        /// Returns false if the parent directory already exists; otherwise, true.
-        /// </returns>
-        /// 
-        /// <exception cref="System.ArgumentException">path is a zero-length string, contains only white space, or contains one or more of the invalid characters defined in <see cref="M:System.IO.Path.GetInvalidPathChars" />.-or- The system could not retrieve the absolute path. </exception>
-        /// <exception cref="System.Security.SecurityException">The caller does not have the required permissions. </exception>
-        /// <exception cref="System.ArgumentNullException">path is null. </exception>
-        /// <exception cref="System.NotSupportedException">path contains a colon (":") that is not part of a volume identifier (for example, "c:\"). </exception>
-        /// <exception cref="System.IO.PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length. For example, on Windows-based platforms, paths must be less than 248 characters, and file names must be less than 260 characters. </exception>
-        public static bool CreateParentDirectory(string path)
+        /// <param name="path">The path of the directory to delete.</param>
+        /// <returns>True if the directory was successfully deleted; false otherwise.</returns>
+        public static bool TryDeleteDirectory(string path)
         {
-            string parentDir = GetParentDirectory(path);
-
-            if (Directory.Exists(parentDir)) return false;
-
-            Directory.CreateDirectory(parentDir);
-
-            return true;
+            return TryDeleteDirectory(path, true);
         }
 
         /// <summary>
-        /// Deletes a directory and all subdirectories and files.
+        /// Deletes a directory, and if indicated, all subdirectories 
+        /// and files in the directory, without throwing an 
+        /// exception if the operation fails.
         /// </summary>
-        /// 
         /// <param name="path">The path of the directory to delete.</param>
-        /// 
-        /// <returns>Whether the directory was successfully deleted.</returns>
-        /// 
-        /// <exception cref="System.ArgumentNullException">Thrown if path is null.</exception>
-        public static bool DeleteDirectory(string path)
+        /// <param name="recursive">Whether to delete subdirectories and files.</param>
+        /// <returns>True if the directory was successfully deleted; false otherwise.</returns>
+        public static bool TryDeleteDirectory(string path, bool recursive)
         {
-            return DeleteDirectory(path, true);
-        }
-
-        /// <summary>
-        /// Deletes a directory, and if indicated, all subdirectories and files in the directory.
-        /// </summary>
-        /// 
-        /// <param name="path">The path of the directory to delete.</param>
-        /// <param name="recursive">Whether to delete subdirectories and files in the directory.</param>
-        /// 
-        /// <returns>Whether the directory was successfully deleted.</returns>
-        /// 
-        /// <exception cref="ArgumentNullException">Thrown if path is null.</exception>
-        public static bool DeleteDirectory(string path, bool recursive)
-        {
-            if (path == null) throw new ArgumentNullException("path");
             if (!Directory.Exists(path)) return false;
 
             try
             {
                 Directory.Delete(path, recursive);
+                return true;
             }
             catch
             {
                 return false;
             }
-
-            return true;
         }
 
         /// <summary>
-        /// Deletes the specified file.
+        /// Deletes the specified file, without throwing an 
+        /// exception if the operation fails.
         /// </summary>
-        /// 
         /// <param name="path">The path of the file to delete.</param>
-        /// 
-        /// <returns>Whether the file was successfully deleted.</returns>
-        /// 
-        /// <exception cref="System.ArgumentNullException">path</exception>
-        public static bool DeleteFile(string path)
+        /// <returns>True if the file was successfully deleted; false otherwise.</returns>
+        public static bool TryDeleteFile(string path)
         {
-            if (path == null) throw new ArgumentNullException("path");
             if (!File.Exists(path)) return false;
 
             try
             {
                 File.Delete(path);
+                return true;
             }
             catch
             {
                 return false;
             }
-
-            return true;
         }
 
         /// <summary>
-        /// Moves a file, optionally overwriting the destination file if it exists. 
-        /// Returns whether the destination file was overwritten. 
-        /// Throws an exception if the destination file exists but overwrite is set to false.
+        /// Deletes multiple files, without throwing an exception if 
+        /// any files could not be deleted.
         /// </summary>
-        /// 
-        /// <param name="srcPath">The path of the file to move.</param>
-        /// <param name="destPath">The new path of the file.</param>
-        /// <param name="overwrite">Whether to overwrite existing files.</param>
-        /// 
-        /// <returns>Whether the destination file was overwritten, if it existed.</returns>
-        /// 
-        /// <exception cref="System.ArgumentNullException">
-        /// Thrown if srcPath or destPath is null.
-        /// </exception>
-        /// 
-        /// <exception cref="System.IO.IOException">
-        /// Thrown if the destination file already exists and overwrite is false, 
-        /// or if the source file was not found.
-        /// </exception>
-        /// 
-        /// <exception cref="System.ArgumentException">sourceFileName or destFileName is a zero-length string, contains only white space, or contains invalid characters. </exception>
-        /// <exception cref="System.UnauthorizedAccessException">The caller does not have the required permission. </exception>
-        /// <exception cref="System.IO.PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length. For example, on Windows-based platforms, paths must be less than 248 characters, and file names must be less than 260 characters. </exception>
-        /// <exception cref="System.IO.DirectoryNotFoundException">The path specified in sourceFileName or destFileName is invalid, (for example, it is on an unmapped drive). </exception>
-        /// <exception cref="System.NotSupportedException">sourceFileName or destFileName is in an invalid format. </exception>
-        public static bool MoveFile(string srcPath, string destPath, bool overwrite)
+        /// <param name="paths">The paths of the files to delete.</param>
+        /// <returns>True if all files were successfully deleted; false otherwise.</returns>
+        public static bool TryDeleteFiles(IEnumerable<string> paths)
         {
-            if (srcPath == null) throw new ArgumentNullException("srcPath");
-            if (destPath == null) throw new ArgumentNullException("destPath");
-            bool deletedDest = false;
-            if (overwrite)
-            {
-                deletedDest = DeleteFile(destPath);
-            }
-            File.Move(srcPath, destPath);
-            return deletedDest;
+            return paths.Aggregate(true, (current, file) => TryDeleteFile(file) && current);
+        }
+
+        /// <summary>
+        /// Deletes multiple directories and all subdirectories 
+        /// and files within the directories, without throwing an exception if 
+        /// any directories or files could not be deleted.
+        /// </summary>
+        /// <param name="paths">The paths of the directories to delete.</param>
+        /// <returns>True if all directories were successfully deleted; false otherwise.</returns>
+        public static bool TryDeleteDirectories(IEnumerable<string> paths)
+        {
+            return TryDeleteDirectories(paths, true);
+        }
+
+        /// <summary>
+        /// Deletes multiple directories, and, if indicated, 
+        /// all subdirectories and files within the directories, 
+        /// without throwing an exception if any directories or 
+        /// files could not be deleted.
+        /// </summary>
+        /// <param name="paths">The paths of the directories to delete.</param>
+        /// <param name="recursive">Whether to delete sub-directories and files.</param>
+        /// <returns>True if all directories were successfully deleted; false otherwise.</returns>
+        public static bool TryDeleteDirectories(IEnumerable<string> paths, bool recursive)
+        {
+            return paths.Aggregate(true, (current, dir) => TryDeleteDirectory(dir, recursive) && current);
         }
 
         /// <summary>
@@ -174,47 +130,19 @@ namespace EzUtilities
         /// Returns false if the path is not a directory, the directory 
         /// does not exist, or if any items were not successfully deleted.
         /// </summary>
-        /// 
         /// <param name="path">The path of the directory to empty.</param>
-        /// 
         /// <returns>Whether all items within the directory were deleted.</returns>
-        public static bool EmptyDirectory(string path)
+        /// TODO: ADD EXCEPTION DOC
+        public static bool TryEmptyDirectory(string path)
         {
             if (!Directory.Exists(path)) return false;
 
-            bool allItemsDeleted = Directory.GetFiles(path)
-                .Aggregate(true, (current, file) => DeleteFile(file) && current);
-
-                 allItemsDeleted = Directory.GetDirectories(path)
-                .Aggregate(allItemsDeleted, (current, dir) => DeleteDirectory(dir) && current);
-
-            return allItemsDeleted;
+            return TryDeleteDirectories(Directory.GetDirectories(path)) &
+                   TryDeleteFiles(Directory.GetFiles(path));
         }
 
         /// <summary>
-        /// Gets the parent directory of the specified file or directory.
-        /// </summary>
-        /// 
-        /// <param name="path">The path of the file or directory.</param>
-        /// 
-        /// <returns>The path of the parent directory.</returns>
-        /// 
-        /// <exception cref="ArgumentException">Thrown if path is a root path.</exception>
-        /// <exception cref="System.ArgumentNullException">Thrown if path is null.</exception>
-        public static string GetParentDirectory(string path)
-        {
-            if (path == null) throw new ArgumentNullException("path");
-            //Even if the path is not a directory, 
-            //we can pretend it is; after all, folders 
-            //can be named folder.exe as well.
-            var parentDi = new DirectoryInfo(path).Parent;
-            if (parentDi == null) throw new ArgumentException("Path is a root path");
-            string parent = parentDi.FullName;
-            return parent;
-        }
-
-        /// <summary>
-        /// Gets a random file name without an extension.
+        /// Gets a random 8 character file name without an extension.
         /// </summary>
         public static string GetRandomFileName()
         {
@@ -234,10 +162,8 @@ namespace EzUtilities
         /// <summary>
         /// Throws a <see cref="System.IO.FileNotFoundException"/> if the file does not exist.
         /// </summary>
-        /// 
         /// <param name="path">The path to the file.</param>
-        /// 
-        /// <exception cref="FileNotFoundException">File was not found.</exception>
+        /// <exception cref="FileNotFoundException">Thrown if the file was not found.</exception>
         public static void EnsureFileExists(string path)
         {
             if (!File.Exists(path)) throw new FileNotFoundException("File not found", path);
@@ -246,13 +172,93 @@ namespace EzUtilities
         /// <summary>
         /// Throws a <see cref="System.IO.DirectoryNotFoundException"/> if the directory does not exist.
         /// </summary>
-        /// 
         /// <param name="path">The path to the directory.</param>
-        /// 
-        /// <exception cref="DirectoryNotFoundException">Directory was not found.</exception>
+        /// <exception cref="DirectoryNotFoundException">Thrown if the directory was not found.</exception>
         public static void EnsureDirectoryExists(string path)
         {
             if (!Directory.Exists(path)) throw new DirectoryNotFoundException("Directory not found: " + path);
+        }
+
+        /// <summary>
+        /// Creates the directory that contains this file or directory. 
+        /// </summary>
+        /// <param name="path">The path to the file or directory.</param>
+        /// <returns>False if the parent directory already exists; true otherwise.</returns>
+        /// TODO: ADD EXCEPTION DOC
+        public static bool CreateParentDirectory(string path)
+        {
+            string parentDir = GetParentDirectory(path);
+            if (Directory.Exists(parentDir)) return false;
+            Directory.CreateDirectory(parentDir);
+            return true;
+        }
+
+        /// <summary>
+        /// Moves a file, overwriting the destination file if it exists.
+        /// </summary>
+        /// <param name="srcPath">The path of the file to move.</param>
+        /// <param name="destPath">The new path of the file.</param>
+        /// <returns>True if the destination file existed; false otherwise.</returns>
+        /// TODO: ADD EXCEPTION DOC
+        public static bool MoveReplaceFile(string srcPath, string destPath)
+        {
+            if (srcPath == null) throw new ArgumentNullException("srcPath");
+            if (destPath == null) throw new ArgumentNullException("destPath");
+            bool deletedDest;
+            if (File.Exists(destPath))
+            {
+                deletedDest = true;
+                File.Delete(destPath);
+            }
+            else
+            {
+                deletedDest = false;
+            }
+            
+            File.Move(srcPath, destPath);
+            return deletedDest;
+        }
+
+        /// <summary>
+        /// Gets the parent directory of the specified file or directory.
+        /// </summary>
+        /// <param name="path">The path of the file or directory.</param>
+        /// <returns>The path of the parent directory.</returns>
+        /// TODO: ADD EXCEPTION DOC
+        public static string GetParentDirectory(string path)
+        {
+            if (path == null) throw new ArgumentNullException("path");
+            //Even if the path is not a directory, 
+            //we can pretend it is; after all, folders 
+            //can be named folder.exe as well.
+            var parentDi = new DirectoryInfo(path).Parent;
+            if (parentDi == null) throw new ArgumentException("Path is a root path");
+            string parent = parentDi.FullName;
+            return parent;
+        }
+
+        /// <summary>
+        /// Gets the path of a directory or file relative to a base directory.
+        /// </summary>
+        /// <param name="baseDir">The path of the base directory.</param>
+        /// <param name="fullPath">The path of the file or directory.</param>
+        /// <returns>A string containing the path of fullPath relative to baseDir.</returns>
+        /// TODO: ADD EXCEPTION DOC
+        public static string GetRelativePath(string baseDir, string fullPath)
+        {
+            if (baseDir == null) throw new ArgumentNullException("baseDir");
+            if (fullPath == null) throw new ArgumentNullException("fullPath");
+
+            string baseDirNormalized = Path.GetFullPath(baseDir + Path.DirectorySeparatorChar);
+            string baseDirNormalizedUpper = baseDirNormalized.ToUpperInvariant();
+            string fullPathNormalized = Path.GetFullPath(fullPath);
+            string fullPathNormalizedUpper = fullPathNormalized.ToUpperInvariant();
+            if (fullPathNormalizedUpper.IndexOf(baseDirNormalizedUpper, StringComparison.Ordinal) != 0)
+            {
+                throw new ArgumentException("The path is not located within the base directory");
+            }
+
+            return fullPathNormalized.Remove(0, baseDirNormalized.Length);
         }
     }
 }

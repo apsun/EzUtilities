@@ -58,6 +58,8 @@ namespace EzUtilities
         /// Thrown if the file is not an image, corrupted, 
         /// or a PNG image with a dimension greater than 65,535 px.
         /// </exception>
+        /// 
+        /// <exception cref="System.IO.FileNotFoundException">The specified file does not exist.</exception>
         public static Image FromFileConvertException(string path)
         {
             Image img;
@@ -85,10 +87,17 @@ namespace EzUtilities
         /// 
         /// <param name="path">The path to the image file.</param>
         /// <param name="stream">The MemoryStream that contains data for the image.</param>
+        /// 
+        /// <exception cref="InvalidImageException">
+        /// Thrown if the file is not an image, corrupted, 
+        /// or a PNG image with a dimension greater than 65,535 px.
+        /// </exception>
+        /// 
+        /// <exception cref="System.IO.FileNotFoundException">The specified file does not exist.</exception>
         public static Image FromFileNoLock(string path, out MemoryStream stream)
         {
             stream = new MemoryStream();
-            using (Image img = Image.FromFile(path))
+            using (Image img = FromFileConvertException(path))
             {
                 img.Save(stream, img.RawFormat);
             }
@@ -151,9 +160,12 @@ namespace EzUtilities
         /// Thrown if the file is not an image, corrupted, 
         /// or a PNG image with a dimension greater than 65,535 px.
         /// </exception>
+        /// 
         /// <exception cref="System.ArgumentException">
         /// Thrown if the image does not have exactly one frame dimension.
         /// </exception>
+        /// 
+        /// <exception cref="System.IO.FileNotFoundException">The specified file does not exist.</exception>
         public static Image[] LoadFrames(string path, out MemoryStream[] streams)
         {
             using (Image img = FromFileConvertException(path))
@@ -379,6 +391,7 @@ namespace EzUtilities
         /// Quickly gets the size of an image from a file.
         /// </summary>
         /// <param name="path">The path to the image file.</param>
+        /// TODO: ADD EXCEPTION DOC
         public static SizeF GetSize(string path)
         {
             using (var file = new FileStream(path, FileMode.Open, FileAccess.Read))

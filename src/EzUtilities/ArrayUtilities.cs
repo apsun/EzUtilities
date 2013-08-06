@@ -8,6 +8,30 @@ namespace EzUtilities
     public static class ArrayUtilities
     {
         /// <summary>
+        /// Returns the index of the first occurrence of an item within the array.
+        /// </summary>
+        /// <param name="array">The array to search.</param>
+        /// <param name="item">The item to search for.</param>
+        /// <typeparam name="T">The type of items in the array.</typeparam>
+        /// <returns>The index of the item if it was found; -1 otherwise.</returns>
+        public static int IndexOf<T>(this T[] array, T item)
+        {
+            return Array.IndexOf(array, item);
+        }
+
+        /// <summary>
+        /// Determines whether an item is in the array.
+        /// </summary>
+        /// <param name="array">The array to search.</param>
+        /// <param name="item">The item to search for.</param>
+        /// <typeparam name="T">The type of items in the array.</typeparam>
+        /// <returns>True if the item was found in the array; false otherwise.</returns>
+        public static bool Contains<T>(this T[] array, T item)
+        {
+            return Array.IndexOf(array, item) >= 0;
+        }
+
+        /// <summary>
         /// Performs an insertion sort on an array.
         /// </summary>
         /// <param name="array">The array to sort.</param>
