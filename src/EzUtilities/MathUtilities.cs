@@ -8,76 +8,6 @@ namespace EzUtilities
     public static class MathUtilities
     {
         /// <summary>
-        /// The single-precision epsilon, equal to 2^-23 (1.19209290E-07).
-        /// </summary>
-        public static readonly float SingleEpsilon = (float)Math.Pow(2, -23);
-
-        /// <summary>
-        /// The double-precision epsilon, equal to 2^-52 (2.2204460492503131E-16).
-        /// </summary>
-        public static readonly double DoubleEpsilon = Math.Pow(2, -52);
-
-        /// <summary>
-        /// Checks whether two single-precision floating point numbers 
-        /// are approximately equal to each other.
-        /// </summary>
-        /// 
-        /// <param name="a">The first number.</param>
-        /// <param name="b">The second number.</param>
-        /// <param name="epsilon">The tolerance for differences in values.</param>
-        /// 
-        /// <returns>Whether the two floats are approximately equal.</returns>
-        public static bool ApproxEquals(float a, float b, float epsilon)
-        {
-            return Math.Abs(a - b) < epsilon;
-        }
-
-        /// <summary>
-        /// Checks whether two single-precision floating point numbers 
-        /// are approximately equal to each other using the default 
-        /// tolerance epsilon (1000*2^-23).
-        /// </summary>
-        /// 
-        /// <param name="a">The first number.</param>
-        /// <param name="b">The second number.</param>
-        /// 
-        /// <returns>Whether the two floats are approximately equal.</returns>
-        public static bool ApproxEquals(this float a, float b)
-        {
-            return ApproxEquals(a, b, 1000 * SingleEpsilon);
-        }
-
-        /// <summary>
-        /// Checks whether two double-precision floating point numbers 
-        /// are approximately equal to each other.
-        /// </summary>
-        /// 
-        /// <param name="a">The first number.</param>
-        /// <param name="b">The second number.</param>
-        /// <param name="epsilon">The tolerance for differences in values.</param>
-        /// 
-        /// <returns>Whether the two doubles are approximately equal.</returns>
-        public static bool ApproxEquals(double a, double b, double epsilon)
-        {
-            return Math.Abs(a - b) < epsilon;
-        }
-
-        /// <summary>
-        /// Checks whether two double-precision floating point numbers 
-        /// are approximately equal to each other using the default 
-        /// tolerance epsilon (1000*2^-52).
-        /// </summary>
-        /// 
-        /// <param name="a">The first number.</param>
-        /// <param name="b">The second number.</param>
-        /// 
-        /// <returns>Whether the two doubles are approximately equal.</returns>
-        public static bool ApproxEquals(this double a, double b)
-        {
-            return ApproxEquals(a, b, 1000 * DoubleEpsilon);
-        }
-
-        /// <summary>
         /// Finds the minimum value in a set of values.
         /// </summary>
         /// 
@@ -139,9 +69,8 @@ namespace EzUtilities
         public static bool IsBetween<T>(this T value, T lower, T higher) where T : IComparable<T>
         {
             if (lower.CompareTo(higher) == 1)
-            {
                 throw new ArgumentException("Upper bound must be greater than lower bound");
-            }
+            
             return value.CompareTo(lower) >= 0 && value.CompareTo(higher) <= 0;
         }
 
@@ -161,9 +90,9 @@ namespace EzUtilities
         /// </returns>
         public static int GetMinMax<T>(T value1, T value2, out T min, out T max) where T : IComparable<T>
         {
-            int returnValue = value1.CompareTo(value2);
+            int cmp = value1.CompareTo(value2);
 
-            if (returnValue == -1) //value1 < value2
+            if (cmp == -1) //value1 < value2
             {
                 min = value1;
                 max = value2;
@@ -174,7 +103,7 @@ namespace EzUtilities
                 max = value1;
             }
 
-            return returnValue;
+            return cmp;
         }
 
         /// <summary>
@@ -193,7 +122,6 @@ namespace EzUtilities
             if (upper <= lower) throw new ArgumentException("upper must be greater than lower");
 
             int t = (num - lower) % (upper - lower);
-
             return t < 0 ? t + upper : t + lower;
         }
 
@@ -213,7 +141,6 @@ namespace EzUtilities
             if (upper <= lower) throw new ArgumentException("upper must be greater than lower");
 
             float t = (num - lower) % (upper - lower);
-
             return t < 0 ? t + upper : t + lower;
         }
 
@@ -230,9 +157,29 @@ namespace EzUtilities
         /// <exception cref="ArgumentException">Thrown if lower is greater than upper.</exception>
         public static double Wrap(this double num, double lower, double upper)
         {
-            double t = (num - lower) % (upper - lower);
+            if (upper <= lower) throw new ArgumentException("upper must be greater than lower");
 
+            double t = (num - lower) % (upper - lower);
             return t < 0 ? t + upper : t + lower;
+        }
+
+        /// <summary>
+        /// Gets the modulo of two numbers, where the result is always positive.
+        /// </summary>
+        /// <param name="a">The dividend.</param>
+        /// <param name="b">The divisor.</param>
+        /// <returns>The result of the modulo operation.</returns>
+        public static int PositiveMod(this int a, int b)
+        {
+            if (b < 0)
+            {
+                a = -a;
+                b = -b;
+            }
+
+            int ret = a % b;
+            if (ret < 0) ret += b;
+            return ret;
         }
     }
 }

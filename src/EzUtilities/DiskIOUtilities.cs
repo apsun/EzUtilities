@@ -8,7 +8,7 @@ namespace EzUtilities
     /// <summary>
     /// Provides tools to work with directories, files, and paths.
     /// </summary>
-    public static class IOUtilities
+    public static class DiskIOUtilities
     {
         /// <summary>
         /// Creates a directory, doing nothing if the directory already exists. 
@@ -176,7 +176,33 @@ namespace EzUtilities
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory was not found.</exception>
         public static void EnsureDirectoryExists(string path)
         {
-            if (!Directory.Exists(path)) throw new DirectoryNotFoundException("Directory not found: " + path);
+            EnsureDirectoryExists(path, false);
+        }
+
+        /// <summary>
+        /// Ensures that the directory exists, either by creating it or by throwing an exception.
+        /// </summary>
+        /// <param name="path">
+        /// The path to the directory.
+        /// </param>
+        /// <param name="create">
+        /// True to create the directory if it does not exist; false to throw an exception.
+        /// </param>
+        /// <exception cref="DirectoryNotFoundException">
+        /// Thrown if the directory was not found and create is false.
+        /// </exception>
+        /// TODO: ADD EXCEPTION DOC
+        public static void EnsureDirectoryExists(string path, bool create)
+        {
+            if (Directory.Exists(path)) return;
+            if (create)
+            {
+                Directory.CreateDirectory(path);
+            }
+            else
+            {
+                throw new DirectoryNotFoundException("Directory not found: " + path);
+            }
         }
 
         /// <summary>

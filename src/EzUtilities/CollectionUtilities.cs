@@ -35,24 +35,6 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Copies the contents of the collection into a new array.
-        /// </summary>
-        /// 
-        /// <typeparam name="T">The collection type.</typeparam>
-        /// <param name="collection">The collection to copy.</param>
-        /// 
-        /// <returns>The copied array.</returns>
-        /// 
-        /// <exception cref="ArgumentNullException">Thrown if the collection is null.</exception>
-        public static T[] Copy<T>(this ICollection<T> collection)
-        {
-            if (collection == null) throw new ArgumentNullException("collection");
-            var copy = new T[collection.Count];
-            collection.CopyTo(copy, 0);
-            return copy;
-        }
-
-        /// <summary>
         /// Gets the indices corresponding to the items in a list. 
         /// Returns -1 for the index if the item was not found.
         /// </summary>
@@ -61,21 +43,7 @@ namespace EzUtilities
         /// <typeparam name="T">The type of items in the list.</typeparam>
         /// <returns>The indices of the items within the list.</returns>
         /// <exception cref="ArgumentNullException">Thrown if the list or the items are null.</exception>
-        public static int[] GetIndices<T>(this IList<T> list, params T[] items)
-        {
-            return list.GetIndices((IList<T>)items);
-        }
-
-        /// <summary>
-        /// Gets the indices corresponding to the items in a list. 
-        /// Returns -1 for the index if the item was not found.
-        /// </summary>
-        /// <param name="list">The list to search.</param>
-        /// <param name="items">The items to find.</param>
-        /// <typeparam name="T">The type of items in the list.</typeparam>
-        /// <returns>The indices of the items within the list.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if the list or the items are null.</exception>
-        public static int[] GetIndices<T>(this IList<T> list, IList<T> items)
+        public static int[] IndexOf<T>(this IList<T> list, IList<T> items)
         {
             if (list == null) throw new ArgumentNullException("list");
             if (items == null) throw new ArgumentNullException("items");
@@ -97,7 +65,7 @@ namespace EzUtilities
         /// <typeparam name="T">The type of items in the list.</typeparam>
         /// <returns>The indices of the items within the list.</returns>
         /// <exception cref="ArgumentNullException">Thrown if the list or the items are null.</exception>
-        public static IEnumerable<int> GetIndices<T>(this IList<T> list, IEnumerable<T> items)
+        public static IEnumerable<int> IndexOf<T>(this IList<T> list, IEnumerable<T> items)
         {
             if (list == null) throw new ArgumentNullException("list");
             if (items == null) throw new ArgumentNullException("items");
@@ -116,21 +84,6 @@ namespace EzUtilities
         {
             if (list == null) throw new ArgumentNullException("list");
             return index >= 0 && index < list.Count;
-        }
-
-        /// <summary>
-        /// Checks if the index is a valid index for this list 
-        /// or is equal to the list's count (for rearranging purposes).
-        /// </summary>
-        /// <param name="list">The list to check.</param>
-        /// <param name="index">The index to check.</param>
-        /// <typeparam name="T">The type of items in the list.</typeparam>
-        /// <returns>True if the index is [0, length]; false otherwise.</returns>
-        /// <exception cref="ArgumentNullException">Thrown if the list is null.</exception>
-        public static bool IsValidRearrangeIndex<T>(this IList<T> list, int index)
-        {
-            if (list == null) throw new ArgumentNullException("list");
-            return index >= 0 && index <= list.Count;
         }
 
         /// <summary>
@@ -279,7 +232,7 @@ namespace EzUtilities
         /// <exception cref="InvalidOperationException">Thrown if an item was not found in the list or if the list is read-only.</exception>
         /// <exception cref="ArgumentOutOfRangeException">Thrown if the destination or source indices are out of range.</exception>
         /// <exception cref="ArgumentException">Thrown if there are duplicate values in the selected items.</exception>
-        public static void RearrangeIndex<T>(this IList<T> list, int destIndex, params int[] srcIndices)
+        public static void RearrangeAt<T>(this IList<T> list, int destIndex, params int[] srcIndices)
         {
             if (list == null)
                 throw new ArgumentNullException("list");
@@ -291,7 +244,7 @@ namespace EzUtilities
 
             if (srcIndices.Length == 1)
             {
-                list.RearrangeIndex(destIndex, srcIndices[0]);
+                list.RearrangeAt(destIndex, srcIndices[0]);
                 return;
             }
 
@@ -412,7 +365,7 @@ namespace EzUtilities
         /// <exception cref="ArgumentNullException">Thrown if list is null.</exception>
         /// <exception cref="System.ArgumentOutOfRangeException">Source or destination index is not a valid index in the <see cref="T:System.Collections.Generic.IList`1" />.</exception>
         /// <exception cref="System.NotSupportedException">The <see cref="T:System.Collections.Generic.IList`1" /> is read-only.</exception>
-        public static void RearrangeIndex<T>(this IList<T> list, int destIndex, int srcIndex)
+        public static void RearrangeAt<T>(this IList<T> list, int destIndex, int srcIndex)
         {
             if (list == null) throw new ArgumentNullException("list");
 
@@ -597,6 +550,21 @@ namespace EzUtilities
                 list[k] = list[n];
                 list[n] = value;
             }
+        }
+
+        /// <summary>
+        /// Checks if the index is a valid index for this list 
+        /// or is equal to the list's count (for rearranging purposes).
+        /// </summary>
+        /// <param name="list">The list to check.</param>
+        /// <param name="index">The index to check.</param>
+        /// <typeparam name="T">The type of items in the list.</typeparam>
+        /// <returns>True if the index is [0, length]; false otherwise.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the list is null.</exception>
+        private static bool IsValidRearrangeIndex<T>(this IList<T> list, int index)
+        {
+            if (list == null) throw new ArgumentNullException("list");
+            return index >= 0 && index <= list.Count;
         }
     }
 }

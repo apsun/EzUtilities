@@ -43,9 +43,9 @@
     <Compile Include="ArrayUtilities.cs" />
     <Compile Include="CollectionUtilities.cs" />
     <Compile Include="ImageUtilities.cs" />
-    <Compile Include="IOUtilities.cs" />
+    <Compile Include="DiskIOUtilities.cs" />
     <Compile Include="MathUtilities.cs" />
-    <Compile Include="TextUtilities.cs" />
+    <Compile Include="TextIOUtilities.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RandomUtilities.cs" />
     <Compile Include="XmlUtilities.cs" />

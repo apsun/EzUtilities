@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace EzUtilities
 {
@@ -17,6 +18,28 @@ namespace EzUtilities
         public static int IndexOf<T>(this T[] array, T item)
         {
             return Array.IndexOf(array, item);
+        }
+
+        /// <summary>
+        /// Gets the indices corresponding to the items in an array. 
+        /// Returns -1 for the index if the item was not found.
+        /// </summary>
+        /// <param name="array">The array to search.</param>
+        /// <param name="items">The items to find.</param>
+        /// <typeparam name="T">The type of items in the array.</typeparam>
+        /// <returns>The indices of the items within the array.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if the array or the items are null.</exception>
+        public static int[] IndexOf<T>(this T[] array, IList<T> items)
+        {
+            if (array == null) throw new ArgumentNullException("array");
+            if (items == null) throw new ArgumentNullException("items");
+
+            var indices = new int[items.Count];
+            for (int i = 0; i < indices.Length; ++i)
+            {
+                indices[i] = Array.IndexOf(array, items[i]);
+            }
+            return indices;
         }
 
         /// <summary>
