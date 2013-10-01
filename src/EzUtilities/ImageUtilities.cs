@@ -314,7 +314,7 @@ namespace EzUtilities
         /// <exception cref="System.Runtime.InteropServices.ExternalException">The image was saved with the wrong image format.-or- The image was saved to the same file it was created from.</exception>
         public static void EzSave(this Image img, string path)
         {
-            DiskIOUtilities.CreateParentDirectory(path);
+            IOUtilities.CreateParentDirectory(path);
             img.Save(path);
         }
 
@@ -330,7 +330,7 @@ namespace EzUtilities
         /// <exception cref="System.Runtime.InteropServices.ExternalException">The image was saved with the wrong image format.-or- The image was saved to the same file it was created from.</exception>
         public static void EzSave(this Image img, string path, ImageFormat format)
         {
-            DiskIOUtilities.CreateParentDirectory(path);
+            IOUtilities.CreateParentDirectory(path);
             img.Save(path, format);
         }
 
@@ -347,7 +347,7 @@ namespace EzUtilities
         /// <exception cref="System.Runtime.InteropServices.ExternalException">The image was saved with the wrong image format.-or- The image was saved to the same file it was created from.</exception>
         public static void EzSave(this Image img, string path, ImageCodecInfo encoder, EncoderParameters encoderParams)
         {
-            DiskIOUtilities.CreateParentDirectory(path);
+            IOUtilities.CreateParentDirectory(path);
             img.Save(path, encoder, encoderParams);
         }
 

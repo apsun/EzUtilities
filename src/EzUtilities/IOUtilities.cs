@@ -8,7 +8,7 @@ namespace EzUtilities
     /// <summary>
     /// Provides tools to work with directories, files, and paths.
     /// </summary>
-    public static class DiskIOUtilities
+    public static class IOUtilities
     {
         /// <summary>
         /// Creates a directory, doing nothing if the directory already exists. 

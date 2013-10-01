@@ -164,22 +164,45 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Gets the modulo of two numbers, where the result is always positive.
+        /// Clamps a number within a range of [lower, upper].
         /// </summary>
-        /// <param name="a">The dividend.</param>
-        /// <param name="b">The divisor.</param>
-        /// <returns>The result of the modulo operation.</returns>
-        public static int PositiveMod(this int a, int b)
+        /// 
+        /// <param name="num">The number to clamp.</param>
+        /// <param name="lower">The inclusive lower bound.</param>
+        /// <param name="upper">The inclusive upper bound.</param>
+        /// 
+        /// <returns>The clamped number.</returns>
+        public static int Clamp(this int num, int lower, int upper)
         {
-            if (b < 0)
-            {
-                a = -a;
-                b = -b;
-            }
+            return Math.Min(Math.Max(num, lower), upper);
+        }
 
-            int ret = a % b;
-            if (ret < 0) ret += b;
-            return ret;
+        /// <summary>
+        /// Clamps a number within a range of [lower, upper].
+        /// </summary>
+        /// 
+        /// <param name="num">The number to clamp.</param>
+        /// <param name="lower">The inclusive lower bound.</param>
+        /// <param name="upper">The inclusive upper bound.</param>
+        /// 
+        /// <returns>The clamped number.</returns>
+        public static float Clamp(this float num, float lower, float upper)
+        {
+            return Math.Min(Math.Max(num, lower), upper);
+        }
+
+        /// <summary>
+        /// Clamps a number within a range of [lower, upper].
+        /// </summary>
+        /// 
+        /// <param name="num">The number to clamp.</param>
+        /// <param name="lower">The inclusive lower bound.</param>
+        /// <param name="upper">The inclusive upper bound.</param>
+        /// 
+        /// <returns>The clamped number.</returns>
+        public static double Clamp(this double num, double lower, double upper)
+        {
+            return Math.Min(Math.Max(num, lower), upper);
         }
     }
 }
