@@ -1,52 +1,36 @@
 ﻿using System;
+using System.Diagnostics.Contracts;
 using System.IO;
 
 namespace EzUtilities
 {
     /// <summary>
-    /// Provides tools for capturing input via the console.
+    /// Provides console I/O utilities.
     /// </summary>
     public static class ConsoleUtilities
     {
         /// <summary>
-        /// Prompts the user to enter a string.
+        /// Prompts the user for a string.
         /// </summary>
-        /// <param name="question">The question to ask the user.</param>
-        /// <returns>The string entered by the user.</returns>
-        public static string PromptString(string question)
+        /// <param name="prompt">The prompt to display to the user.</param>
+        public static string PromptString(string prompt)
         {
-            Console.Write(question);
+            Console.Write(prompt);
             return Console.ReadLine();
         }
 
         /// <summary>
-        /// Prompts the user to enter a string.
+        /// Prompts the user for a string.
         /// </summary>
-        /// <param name="question">The question to ask the user.</param>
-        /// <param name="invalidResponse">
-        /// The message to display when the user enters invalid input. 
-        /// If this value is null, an exception will be thrown if the 
-        /// user enters invalid input.
-        /// </param>
-        /// <param name="validator">
-        /// A function that validates the user's input. 
-        /// Returns true if the input is valid; false otherwise.
-        /// </param>
-        /// <returns>The string entered by the user.</returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if validator is null.
-        /// </exception>
-        /// <exception cref="IOException">
-        /// Thrown if invalidResponse is null and the user enters invalid input.
-        /// </exception>
-        public static string PromptString(string question, string invalidResponse, Func<string, bool> validator)
+        /// <param name="prompt">The prompt to display to the user.</param>
+        /// <param name="invalidResponse">The message to display when the user enters an invalid value.</param>
+        /// <param name="validator">A function to determine whether the user input is valid.</param>
+        public static string PromptString(string prompt, string invalidResponse, Func<string, bool> validator)
         {
-            if (validator == null)
-                throw new ArgumentNullException("validator");
-
+            Contract.Requires<ArgumentNullException>(validator != null);
             while (true)
             {
-                string input = PromptString(question);
+                string input = PromptString(prompt);
                 if (validator(input)) return input;
                 if (invalidResponse == null)
                     throw new IOException("User did not enter a valid string");
@@ -56,49 +40,31 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Prompts the user to enter a character.
+        /// Prompts the user for a single character.
         /// </summary>
-        /// <param name="question">The question to ask the user.</param>
-        /// <param name="validOptions">
-        /// An array of accepted input characters. 
-        /// If this is null or empty, all input is accepted.
-        /// </param>
-        /// <returns>The first valid character the user enters, normalized to uppercase.</returns>
-        public static char PromptChar(string question, params char[] validOptions)
+        /// <param name="prompt">The prompt to display to the user.</param>
+        /// <param name="validChars">An array of accepted characters. The list is case-insensitive.</param>
+        public static char PromptChar(string prompt, params char[] validChars)
         {
-            char[] validUpper = null;
-            if (!validOptions.IsNullOrEmpty())
-            {
-                validUpper = new char[validOptions.Length];
-                for (int i = 0; i < validOptions.Length; ++i)
-                {
-                    validUpper[i] = char.ToUpperInvariant(validOptions[i]);
-                }
-            }
-
-            return PromptChar(question, c => validUpper == null || Array.IndexOf(validUpper, c) >= 0);
+            Contract.Requires<ArgumentNullException>(validChars != null);
+            Contract.Requires<ArgumentNullException>(validChars.Length > 0);
+            var validUpper = new char[validChars.Length];
+            for (int i = 0; i < validChars.Length; ++i)
+                validUpper[i] = char.ToUpperInvariant(validChars[i]);
+            return PromptChar(prompt, c => Array.IndexOf(validUpper, c) >= 0);
         }
 
         /// <summary>
-        /// Prompts the user to enter a character.
+        /// Prompts the user for a single character.
         /// </summary>
-        /// <param name="question">The question to ask the user.</param>
-        /// <param name="validator">
-        /// A function that validates the user's input. 
-        /// Returns true if the input is valid; false otherwise.
-        /// </param>
-        /// <returns>The first valid character the user enters, normalized to uppercase.</returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if validator is null.
-        /// </exception>
-        public static char PromptChar(string question, Func<char, bool> validator)
+        /// <param name="prompt">The prompt to display to the user.</param>
+        /// <param name="validator">A function to determine whether the user input is valid.</param>
+        public static char PromptChar(string prompt, Func<char, bool> validator)
         {
-            if (validator == null)
-                throw new ArgumentNullException("validator");
-
+            Contract.Requires<ArgumentNullException>(validator != null);
             while (true)
             {
-                Console.Write(question);
+                Console.Write(prompt);
                 char input, inputUpper;
                 do
                 {
@@ -112,23 +78,15 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Prompts the user for a 32-bit integer.
+        /// Prompts the user for an integer.
         /// </summary>
-        /// <param name="question">The question to ask the user.</param>
-        /// <param name="invalidResponse">
-        /// The message to display when the user enters invalid input. 
-        /// If this value is null, an exception will be thrown if the 
-        /// user enters invalid input.
-        /// </param>
-        /// <returns>The integer the user entered.</returns>
-        /// <exception cref="IOException">
-        /// Thrown if invalidResponse is null and the user enters invalid input.
-        /// </exception>
-        public static int PromptInteger(string question, string invalidResponse)
+        /// <param name="prompt">The prompt to display to the user.</param>
+        /// <param name="invalidResponse">The message to display when the user enters an invalid value.</param>
+        public static int PromptInteger(string prompt, string invalidResponse)
         {
             while (true)
             {
-                string input = PromptString(question);
+                string input = PromptString(prompt);
                 int value;
                 if (int.TryParse(input, out value)) return value;
                 if (invalidResponse == null)
@@ -139,59 +97,30 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Prompts the user for a 32-bit integer within a specified range.
+        /// Prompts the user for an integer within the range of [min, max].
         /// </summary>
-        /// <param name="question">The question to ask the user.</param>
-        /// <param name="invalidResponse">
-        /// The message to display when the user enters invalid input. 
-        /// If this value is null, an exception will be thrown if the 
-        /// user enters invalid input.
-        /// </param>
-        /// <param name="min">The inclusive lower bound of the accepted range.</param>
-        /// <param name="max">The inclusive upper bound of the accepted range.</param>
-        /// <returns>The integer the user entered.</returns>
-        /// <exception cref="ArgumentException">
-        /// Thrown if the upper bound is not greater than the minimum bound.
-        /// </exception>
-        /// <exception cref="IOException">
-        /// Thrown if invalidResponse is null and the user enters invalid input 
-        /// or a number outside the allowed range.
-        /// </exception>
-        public static int PromptInteger(string question, string invalidResponse, int min, int max)
+        /// <param name="prompt">The prompt to display to the user.</param>
+        /// <param name="invalidResponse">The message to display when the user enters an invalid value.</param>
+        /// <param name="min">The inclusive lower bound.</param>
+        /// <param name="max">The inclusive upper bound.</param>
+        public static int PromptInteger(string prompt, string invalidResponse, int min, int max)
         {
-            if (min >= max) throw new ArgumentException("max must be greater than min");
-            return PromptInteger(question, invalidResponse, i => i >= min && i <= max);
+            Contract.Requires<ArgumentOutOfRangeException>(max >= min);
+            return PromptInteger(prompt, invalidResponse, i => i >= min && i <= max);
         }
 
         /// <summary>
-        /// Prompts the user for a 32-bit integer within a specified range.
+        /// Prompts the user for an integer within the range of [min, max].
         /// </summary>
-        /// <param name="question">The question to ask the user.</param>
-        /// <param name="invalidResponse">
-        /// The message to display when the user enters invalid input. 
-        /// If this value is null, an exception will be thrown if the 
-        /// user enters invalid input.
-        /// </param>
-        /// <param name="validator">
-        /// A function that validates the user's input. 
-        /// Returns true if the input is valid; false otherwise.
-        /// </param>
-        /// <returns>The integer the user entered.</returns>
-        /// <exception cref="ArgumentNullException">
-        /// Thrown if validator is null.
-        /// </exception>
-        /// <exception cref="IOException">
-        /// Thrown if invalidResponse is null and the user enters invalid input 
-        /// or a number outside the allowed range.
-        /// </exception>
-        public static int PromptInteger(string question, string invalidResponse, Func<int, bool> validator)
+        /// <param name="prompt">The prompt to display to the user.</param>
+        /// <param name="invalidResponse">The message to display when the user enters an invalid value.</param>
+        /// <param name="validator">A function to determine whether the user input is valid.</param>
+        public static int PromptInteger(string prompt, string invalidResponse, Func<int, bool> validator)
         {
-            if (validator == null)
-                throw new ArgumentNullException("validator");
-
+            Contract.Requires<ArgumentNullException>(validator != null);
             while (true)
             {
-                int value = PromptInteger(question, invalidResponse);
+                int value = PromptInteger(prompt, invalidResponse);
                 if (validator(value)) return value;
                 if (invalidResponse == null)
                     throw new IOException("User entered an integer outside the allowed range");
@@ -201,35 +130,30 @@ namespace EzUtilities
         }
 
         /// <summary>
-        /// Prompts the user to answer a yes/no question.
+        /// Prompts the user for an boolean value (true/false).
         /// </summary>
-        /// <param name="question">The question to ask the user.</param>
-        /// <param name="yes">The input that is accepted as 'yes'.</param>
-        /// <param name="no">The input that is accepted as 'no'.</param>
-        /// <returns>True if the user selected 'yes'; false if the user selected 'no'.</returns>
-        public static bool PromptYesNo(string question, char yes, char no)
+        /// <param name="prompt">The prompt to display to the user.</param>
+        /// <param name="trueChar">The character that represents a true value.</param>
+        /// <param name="falseChar">The character that represents a false value.</param>
+        public static bool PromptBoolean(string prompt, char trueChar, char falseChar)
         {
-            string q = string.Format("{0} ({1}/{2}): ", question, yes, no);
-            return PromptChar(q, yes, no) == char.ToUpper(yes);
+            string q = string.Format("{0} ({1}/{2}): ", prompt, trueChar, falseChar);
+            return PromptChar(q, trueChar, falseChar) == char.ToUpper(trueChar);
         }
 
         /// <summary>
-        /// Prompts the user to select an enum value.
+        /// Prompts the user to select an enum value. 
+        /// The enum must have ten or fewer values.
         /// </summary>
-        /// <param name="question">The question to ask the user.</param>
-        /// <typeparam name="T">An enum type. The enum must have between 1 and 10 values.</typeparam>
-        /// <returns>The selected enum value.</returns>
-        /// <exception cref="ArgumentException">
-        /// Thrown if the type is not an enum or does not have between 1 and 10 values.
-        /// </exception>
-        public static T PromptShortEnum<T>(string question)
+        /// <typeparam name="T">The type of the enum.</typeparam>
+        /// <param name="prompt">The prompt to display to the user.</param>
+        public static T PromptShortEnum<T>(string prompt)
         {
             Type enumType = typeof(T);
-            if (!enumType.IsEnum) throw new ArgumentException("Type is not an enum");
-
+            Contract.Requires<ArgumentException>(enumType.IsEnum);
             string[] enumNames = Enum.GetNames(enumType);
-            if (enumNames.Length == 0) throw new ArgumentException("Enum has no values");
-            if (enumNames.Length > 10) throw new ArgumentException("Enum has more than 10 values");
+            Contract.Requires<ArgumentException>(enumNames.Length > 0);
+            Contract.Requires<ArgumentException>(enumNames.Length <= 10);
 
             var enumNums = new char[enumNames.Length];
             for (int i = 0; i < enumNames.Length; ++i)
@@ -239,7 +163,7 @@ namespace EzUtilities
                 Console.WriteLine(numChar + ". " + enumNames[i]);
             }
 
-            char c = PromptChar(question, enumNums);
+            char c = PromptChar(prompt, enumNums);
             int numC = (c - '0' + 9) % 10;
             return (T)Enum.Parse(enumType, enumNames[numC]);
         }
@@ -247,30 +171,20 @@ namespace EzUtilities
         /// <summary>
         /// Prompts the user to select an enum value.
         /// </summary>
-        /// <param name="question">The question to ask the user.</param>
-        /// <param name="invalidResponse">The message to display when the user enters invalid input.</param>
-        /// <typeparam name="T">An enum type. The enum must have at least one value.</typeparam>
-        /// <returns>The selected enum value.</returns>
-        /// <exception cref="ArgumentException">
-        /// Thrown if the type is not an enum or has no values.
-        /// </exception>
-        /// <exception cref="IOException">
-        /// Thrown if invalidResponse is null and the user enters invalid input.
-        /// </exception>
-        public static T PromptLongEnum<T>(string question, string invalidResponse)
+        /// <typeparam name="T">The type of the enum.</typeparam>
+        /// <param name="prompt">The prompt to display to the user.</param>
+        /// <param name="invalidResponse">The message to display when the user enters an invalid value.</param>
+        public static T PromptLongEnum<T>(string prompt, string invalidResponse)
         {
             Type enumType = typeof(T);
-            if (!enumType.IsEnum) throw new ArgumentException("Type is not an enum");
-
+            Contract.Requires<ArgumentException>(enumType.IsEnum);
             string[] enumNames = Enum.GetNames(enumType);
-            if (enumNames.Length == 0) throw new ArgumentException("Enum has no values");
+            Contract.Requires<ArgumentException>(enumNames.Length > 0);
 
             for (int i = 0; i < enumNames.Length; ++i)
-            {
                 Console.WriteLine((i + 1) + ". " + enumNames[i]);
-            }
 
-            int num = PromptInteger(question, invalidResponse, 1, enumNames.Length);
+            int num = PromptInteger(prompt, invalidResponse, 1, enumNames.Length);
             return (T)Enum.Parse(enumType, enumNames[num - 1]);
         }
     }

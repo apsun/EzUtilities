@@ -167,6 +167,20 @@ namespace EzUtilities
         }
 
         /// <summary>
+        /// Copies the contents of the array into a new array.
+        /// </summary>
+        /// <param name="array">The array to copy.</param>
+        /// 
+        /// <returns>The copied array.</returns>
+        /// 
+        /// <exception cref="ArgumentNullException">Thrown if the array is null.</exception>
+        public static Array Copy(this Array array)
+        {
+            if (array == null) throw new ArgumentNullException("array");
+            return (Array)array.Clone();
+        }
+
+        /// <summary>
         /// Resizes an array to remove all elements after and including the first null element.
         /// </summary>
         /// 

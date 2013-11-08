@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace EzUtilities
 {
@@ -565,6 +566,31 @@ namespace EzUtilities
         {
             if (list == null) throw new ArgumentNullException("list");
             return index >= 0 && index <= list.Count;
+        }
+
+        /// <summary>
+        /// Returns a string representation of the collection.
+        /// </summary>
+        /// <typeparam name="T">The type of items in the collection.</typeparam>
+        /// <param name="items">The collection.</param>
+        /// <returns>The string containing all elements of the collection.</returns>
+        /// <exception cref="ArgumentNullException">Thrown if items is null.</exception>
+        public static string AsString<T>(this IEnumerable<T> items)
+        {
+            if (items == null) throw new ArgumentNullException("items");
+            var sb = new StringBuilder('{');
+            bool hasItem = false;
+            foreach (T item in items)
+            {
+                if (hasItem)
+                    sb.Append(',');
+                else
+                    hasItem = true;
+                sb.Append(' ');
+                sb.Append(item);
+            }
+            sb.Append(" }");
+            return sb.ToString();
         }
     }
 }
