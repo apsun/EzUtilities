@@ -266,5 +266,28 @@ namespace EzUtilities
 
             return copy;
         }
+        
+        /// <summary>
+        /// Combines two arrays.
+        /// </summary>
+        /// 
+        /// <typeparam name="T">The array type.</typeparam>
+        /// <param name="first">The first array to copy values from. 
+        /// The values of this array are placed first in the combined array.</param>
+        /// <param name="second">The first array to copy values from.</param>
+        /// 
+        /// <returns>The combined array.</returns>
+        /// 
+        /// <exception cref="ArgumentNullException">Thrown if either array is null.</exception>
+        public static T[] Combine<T>(T[] first, T[] second)
+        {
+            if (first == null) throw new ArgumentNullException("first");
+            if (second == null) throw new ArgumentNullException("second");
+
+            var combined = new Level[first.Length + second.Length];
+            Array.Copy(first, 0, combined, 0, first.Length);
+            Array.Copy(second, 0, combined, first.Length, second.Length);
+            return combined;
+        }
     }
 }

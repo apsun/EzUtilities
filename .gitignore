@@ -4,9 +4,3 @@ bin/
 obj/
 *.user
 *.suo
-
-#--Other--#
-
-UtilitiesTest/
-PerformanceTest/
-TestResults/

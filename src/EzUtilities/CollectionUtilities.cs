@@ -592,5 +592,35 @@ namespace EzUtilities
             sb.Append(" }");
             return sb.ToString();
         }
+
+        /// <summary>
+        /// Iterates through a collection, initializing an accumulator using the 
+        /// first value in the enumeration.
+        /// </summary>
+        /// <param name="items">The collection to enumerate.</param>
+        /// <param name="initFunc">A function that returns an accumulator.</param>
+        /// <param name="actionFunc">The action to perform on each item in the iteration.</param>
+        /// <typeparam name="TEnum">The type of items in the collection.</typeparam>
+        /// <typeparam name="TResult">The type of the accumulator.</typeparam>
+        /// <returns>The accumulator, or the default value if the collection is empty.</returns>
+        public static TResult ForEachInitFromFirst<TEnum, TResult>(this IEnumerable<TEnum> items,
+            Func<TEnum, TResult> initFunc, Action<TResult, TEnum> actionFunc)
+        {
+            using (var enumerator = items.GetEnumerator())
+            {
+                if (enumerator.MoveNext())
+                {
+                    TEnum curr = enumerator.Current;
+                    TResult result = initFunc(curr);
+                    do
+                    {
+                        curr = enumerator.Current;
+                        actionFunc(result, curr);
+                    } while (enumerator.MoveNext());
+                    return result;
+                }
+                return default(TResult);
+            }
+        }
     }
 }
